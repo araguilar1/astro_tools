@@ -13,4 +13,5 @@ examples/output/*.html
 venv/
 env/
 .venv/
-.env/
+.env
+CLAUDE.md
