@@ -107,9 +107,8 @@ class EPPR_ST_Frame(CR3BPFrame):
         float
             Non-dimensional time corresponding to the given Julian Date
         """
-        if isinstance(JD, float):
-            if JD < self.JD0 or JD > self.JDF:
-                print("Warning: Requested time falls outside frame time range")
+        if isinstance(JD, float) and (JD < self.JD0 or JD > self.JDF):
+            print("Warning: Requested time falls outside frame time range")
         DeltaJD = JD - self.JD0
         return DeltaJD * 24.0 * 3600.0 / self.tstar
 
@@ -432,10 +431,7 @@ class EPPR_ST_Frame(CR3BPFrame):
             Number of points in the trajectory, by default 5000.
         """
 
-        if mu is None:
-            Mu = BProps[Name]["Mu"]
-        else:
-            Mu = np.copy(mu)
+        Mu = BProps[Name]["Mu"] if mu is None else np.copy(mu)
         ETraj = self.GetSpiceBodyEPPRTraj(Name, N)
         GTraj = []
         for T in ETraj:
@@ -545,8 +541,8 @@ class EPPR_ST_Frame(CR3BPFrame):
             Additional accelerations, by default [].
         otherEOMs : list, optional
             Additional equations of motion, by default [].
-        ActiveAltBodies : str, optional
-            Active alternative bodies, by default "All".
+        ActiveAltBodies : str or list of str, optional
+            "All" to include every added alternate body, or a list of alternate body names, by default "All".
         Enable_J2 : bool, optional
             Enable J2 effect, by default False.
 
@@ -569,10 +565,7 @@ class EPPR_ST_Frame(CR3BPFrame):
 
         GravTerms = [g1, g2] + otherGaccs
 
-        if ActiveAltBodies == "All":
-            Names = self.AltBodyNames
-        else:
-            Names = self.ActiveAltBodies
+        Names = self.AltBodyNames if ActiveAltBodies == "All" else ActiveAltBodies
         for Name in Names:
             rBody = self.AltBodyLocFuncs[Name].eval(t)
             muBody = self.AltBodyMuVals[Name]

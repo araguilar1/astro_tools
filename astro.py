@@ -15,6 +15,8 @@ Functions have the following naming convention:
 12/29/2019: Creation
 """
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -152,21 +154,27 @@ class CelestialObject:
         self.data = self.raw_data[self.ID]
 
     def axial_rotation_period(self):
+        """Return the axial rotation period (rev/day)."""
         return self.data[0]
 
     def equatorial_radius(self):
+        """Return the equatorial radius (km)."""
         return self.data[1]
 
     def mu(self):
+        """Return the gravitational parameter (km^3/s^2)."""
         return self.data[2]
 
     def mass(self):
+        """Return the mass (kg)."""
         return self.data[2] / (G / 1000**3)
 
     def orbit_semi_major_axis(self):
+        """Return the semi-major axis of the orbit (km)."""
         return self.data[3]
 
     def orbital_period(self, unit="day"):
+        """Return the orbital period in days (unit="day") or years (unit="year")."""
         if unit == "day":
             return self.data[4]
         elif unit == "year":
@@ -176,18 +184,21 @@ class CelestialObject:
             return self.data[4]
 
     def orbit_eccentricity(self):
+        """Return the orbital eccentricity."""
         return self.data[5]
 
     def orbit_inclination(self):
+        """Return the inclination of the orbit to the ecliptic (deg)."""
         return self.data[6]
 
     def name(self):
+        """Return the name of the celestial body."""
         return self.data[7]
 
 
 def characteristicQuantities(P1, P2):
     """
-    Returns array of characteristic quantities of the CR3BP for a primary-secondary system:
+    Return a dict of characteristic quantities of the CR3BP for a primary-secondary system:
     1. System Mass Ratio (mu)
     2. Characteristic Length
     3. Characteristic Time
@@ -235,7 +246,16 @@ def cr3bpOde(ndx, t, mu):
 
 
 def cr3bpOdeStm(ndx, t, mu):
+    """
+    CR3BP Equations of Motion with State Transition Matrix propagation
 
+    :param ndx: State Vector followed by the flattened 6x6 STM (42 elements)
+    :param t: Time
+    :param mu: Mass Ratio
+
+    :return: State Vector and STM Derivative (42 elements)
+
+    """
     # Position
     x = ndx[0]
     y = ndx[1]
@@ -286,8 +306,13 @@ def cr3bpOdeStm(ndx, t, mu):
     return yd
 
 
+def cr3bpOdeStmIvp(t, ndx, mu):
+    """Return cr3bpOdeStm with solve_ivp's (t, y) argument order; cr3bpOdeStm uses odeint's (y, t) order."""
+    return cr3bpOdeStm(ndx, t, mu)
+
+
 def uStar(ndx, mu):
-    """Returns the pseudo-potential of the CR3BP"""
+    """Return the pseudo-potential of the CR3BP"""
     x = ndx[0]
     y = ndx[1]
     z = ndx[2]
@@ -297,7 +322,7 @@ def uStar(ndx, mu):
 
 
 def jacobi(ndx, mu):
-    """Returns the Jacobi constant for some coordinates and mass ratio"""
+    """Return the Jacobi constant for some coordinates and mass ratio"""
     ustar = uStar(ndx, mu)
     C = 2 * ustar - np.dot(ndx[3:], ndx[3:])
     # C = 2 - uStar - np.linalg.norm(ndx[3:]) ** 2 (Also works, just to show different methods)
@@ -305,7 +330,7 @@ def jacobi(ndx, mu):
 
 
 def lagrangePoints(mu):
-    """Returns the x,y coordinates of the 5 Lagrange points for any system"""
+    """Return the x,y coordinates of the 5 Lagrange points for any system"""
     tol = 1e-12
 
     def colin(x):
@@ -383,6 +408,7 @@ def lagrangePoints(mu):
 
 
 def lagrangePoints2(mu):
+    """Return the x,y coordinates of the 5 Lagrange points, using scipy's newton for the collinear points."""
 
     def collinear(x, mu):
         d = np.abs(x + mu)
@@ -404,7 +430,7 @@ def lagrangePoints2(mu):
 
 
 def nonDim(x, lstar, tstar, mu, shift=True):
-    """Takes a dimensional state (km, km/s) and non-dimensionalizes it using the CR3BP
+    """Take a dimensional state (km, km/s) and non-dimensionalizes it using the CR3BP
     Characteristic Quantities
 
     if shift = True, origin shifted to system barycenter
@@ -419,7 +445,7 @@ def nonDim(x, lstar, tstar, mu, shift=True):
 
 
 def dim(ndx, lstar, tstar, mu, shift=True):
-    """Converts a non-dimensional CR3BP state to a dimensional state (km, km/s)
+    """Convert a non-dimensional CR3BP state to a dimensional state (km, km/s)
 
     if shift = True, origin shifted to primary
     """
@@ -433,8 +459,8 @@ def dim(ndx, lstar, tstar, mu, shift=True):
 
 
 def cr3bpToJ2k(rp2, vp2, direction=0):
-    """ "
-    Returns the Rotation Matrix for the following transformation:
+    """
+    Return the Rotation Matrix for the following transformation:
     CR3BP State -> J2000 State
     States must be dimensionalized first.
     Rotation matrix is epoch dependent, need spice and info from DExxx file.
@@ -468,24 +494,24 @@ def cr3bpToJ2k(rp2, vp2, direction=0):
 
 def periodicOrbitDf():
     """
-    Function returns a dataframe of period Lagrange Orbit information created by Dan Grebow.
+    Return a dataframe of periodic Lagrange Orbit information created by Dan Grebow.
         No input is required.
-        NOTE: Assumes that the csv file is in the same directory as this script
+        Reads data/Periodic Orbit Data/periodicLagrangeOrbits.csv relative to this file.
     """
-    data = r"periodicLagrangeOrbits.csv"
+    data = Path(__file__).parent / "data" / "Periodic Orbit Data" / "periodicLagrangeOrbits.csv"
     df = pd.read_csv(data)
     return df
 
 
 def plotZvc(mu, C, fill=0):
-    """Plots the ZVC surface for a given mu and Jacobi constant. NOTE: uses matplotlib by default"""
+    """Plot the ZVC surface for a given mu and Jacobi constant. NOTE: uses matplotlib by default"""
     ax = plt.gca()
 
     npoints = 1000
     x = np.linspace(-1.5, 1.5, npoints)
     y = np.linspace(0.0, 1.5, npoints)
     ZZ = np.empty((npoints, npoints))
-    ZZ[:] = np.NaN
+    ZZ[:] = np.nan
     zzPos = np.zeros((npoints, npoints))
     eps = 0.1
     for i in range(npoints):
@@ -505,6 +531,7 @@ def plotZvc(mu, C, fill=0):
 
 
 def twoBodyOde(dx, t, mu):
+    """Return the two-body equations of motion for state dx = [r, v] and gravitational parameter mu."""
     r = dx[0:3]
     r3 = np.linalg.norm(r) ** 3
     v = dx[3:6]
@@ -513,6 +540,7 @@ def twoBodyOde(dx, t, mu):
 
 
 def lagrangePointEigendecomp(ndx, mu):
+    """Return the eigenvalues and eigenvectors of the CR3BP linearized dynamics (Jacobian) at position ndx[0:3]."""
     x = ndx[0]
     y = ndx[1]
     z = ndx[2]
@@ -546,36 +574,96 @@ def lagrangePointEigendecomp(ndx, mu):
 
 
 def printCorrectorStatus(iteration, Fnorm, dx, label=""):
-    """Prints iteration info for differential corrector solvers (solveLyapunov, solveHalo)."""
+    """Print iteration info for differential corrector solvers (solveLyapunov, solveHalo)."""
     header = f"[{label}] " if label else ""
     dx_str = ", ".join(f"{v: .6e}" for v in dx)
     print(f"  {header}Iter {iteration:3d}  |F| = {Fnorm:.6e}  dx = [{dx_str}]")
 
 
+def checkCorrectorProgress(iteration, Fnorm, max_iter, label=""):
+    """Raise RuntimeError if a differential corrector has diverged (non-finite |F|) or reached max_iter."""
+    if not np.isfinite(Fnorm):
+        raise RuntimeError(f"{label} corrector diverged: |F| = {Fnorm} after {iteration} iterations")
+    if iteration >= max_iter:
+        raise RuntimeError(f"{label} corrector did not converge in {max_iter} iterations (|F| = {Fnorm:.6e})")
+
+
+def checkInitialCrossing(xF, direction, label=""):
+    """
+    Raise RuntimeError if the x-z plane crossing event fired at the initial state.
+
+    An initial state on y = 0 whose y-velocity has the same sign as the event direction triggers the
+    event at t = 0, which the corrector would otherwise accept as a converged orbit with zero period.
+    """
+    tEvents = xF.t_events[0]
+    if tEvents.size > 0 and tEvents[0] < 1e-9:
+        raise RuntimeError(
+            f"{label} crossing event fired at the initial state (t = {tEvents[0]:.2e}): the initial y-velocity "
+            f"has the same sign as direction={direction}. Use direction={-direction}."
+        )
+
+
 def lyapunovConstraints(ndx):
+    """Return the Lyapunov orbit x-axis crossing constraints [y, vx]."""
     x0 = np.copy(ndx)
     # y = xDot = 0.0
     return np.array([x0[1], x0[3]])
 
 
 def xCrossing(t, ndx, mu):
+    """Return y, used as a terminal solve_ivp event at the x-z plane crossing (y = 0)."""
     return ndx[1]
 
 
 xCrossing.terminal = True
 
 
-def solveLyapunov(ndx, t, mu=0.0121, tol=1e-12, direction=1):
+def solveLyapunov(ndx, t, mu=0.0121, tol=1e-12, direction=1, max_iter=50):
+    """
+    Solve for a planar Lyapunov orbit using a differential corrector.
+
+    Holds x0 fixed and corrects vy0 and the half-period so that y = vx = 0 at the next x-axis crossing.
+
+    Parameters
+    ----------
+    ndx : np.ndarray, shape (42,)
+        Initial guess: non-dimensional state [x, y, z, vx, vy, vz] followed by the flattened 6x6 identity STM.
+    t : float
+        Initial guess for the half-period (time to the next x-axis crossing).
+    mu : float, optional
+        Mass parameter of the system (default is 0.0121).
+    tol : float, optional
+        Integration tolerance and convergence tolerance on the constraint norm (default is 1e-12).
+    direction : int, optional
+        Direction of the x-axis crossing event passed to solve_ivp (default is 1).
+    max_iter : int, optional
+        Maximum number of corrector iterations (default is 50).
+
+    Returns
+    -------
+    traj : np.ndarray, shape (42, n)
+        States and STMs along one full period of the corrected orbit.
+    period : float
+        Period of the corrected orbit.
+
+    Raises
+    ------
+    RuntimeError
+        If the crossing event fires at the initial state (direction has the same sign as the initial y-velocity),
+        or the corrector diverges (non-finite constraint norm) or does not converge within max_iter iterations.
+    """
     xCrossing.direction = direction
     xF = solve_ivp(
-        cr3bpOdeStm, [0, t], ndx, args=[mu], method="DOP853", atol=tol, rtol=tol, events=xCrossing, dense_output=True
+        cr3bpOdeStmIvp, [0, t], ndx, args=[mu], method="DOP853", atol=tol, rtol=tol, events=xCrossing, dense_output=True
     )
+    checkInitialCrossing(xF, direction, label="Lyapunov")
     t0 = np.copy(xF.t[-1])
     x0 = xF.y[:, 0]
     F = lyapunovConstraints(xF.y[:, -1])
     Fnorm = np.linalg.norm(F)
     iteration = 0
-    while Fnorm > tol:
+    # Explicit isfinite check: NaN > tol is False, so a NaN |F| would otherwise exit the loop as "converged"
+    while not np.isfinite(Fnorm) or Fnorm > tol:
         x = xF.y[0, -1]
         y = xF.y[1, -1]
         yDot = xF.y[4, -1]
@@ -587,6 +675,7 @@ def solveLyapunov(ndx, t, mu=0.0121, tol=1e-12, direction=1):
 
         F = lyapunovConstraints(xF.y[:, -1])
         Fnorm = np.linalg.norm(F)
+        checkCorrectorProgress(iteration, Fnorm, max_iter, label="Lyapunov")
         DF = np.array([[phi[1, 4], yDot], [phi[3, 4], xDotDot]])
         dx = np.linalg.inv(DF).dot(F)
 
@@ -595,13 +684,38 @@ def solveLyapunov(ndx, t, mu=0.0121, tol=1e-12, direction=1):
 
         x0[4] -= dx[0]
         t0 -= dx[1]
-        xF = solve_ivp(cr3bpOdeStm, [0, t0], x0, args=[mu], method="DOP853", atol=tol, rtol=tol, dense_output=True)
+        xF = solve_ivp(cr3bpOdeStmIvp, [0, t0], x0, args=[mu], method="DOP853", atol=tol, rtol=tol, dense_output=True)
     # Return full trajectory and period at the end
-    xF = solve_ivp(cr3bpOdeStm, [0, 2 * t0], x0, args=[mu], method="DOP853", atol=tol, rtol=tol, dense_output=True)
+    xF = solve_ivp(cr3bpOdeStmIvp, [0, 2 * t0], x0, args=[mu], method="DOP853", atol=tol, rtol=tol, dense_output=True)
     return xF.y, xF.t[-1]
 
 
 def lyapunovContinuation(ndx, t, mu=0.0121, dx=0.001, lim=0.9, direction=1):
+    """
+    Continuation method for generating a family of Lyapunov orbits.
+
+    Steps the initial x position by dx after each converged orbit until x0 crosses lim.
+
+    Parameters
+    ----------
+    ndx : np.ndarray, shape (42,)
+        Initial state vector and flattened identity STM for the first orbit.
+    t : float
+        Initial guess for the half-period of the first orbit.
+    mu : float, optional
+        Mass parameter of the system (default is 0.0121).
+    dx : float, optional
+        Step size for continuation along the X direction (default is 0.001).
+    lim : float, optional
+        X position at which to stop the continuation (default is 0.9).
+    direction : int, optional
+        Direction of the x-axis crossing event passed to solve_ivp (default is 1).
+
+    Returns
+    -------
+    trajList : list of np.ndarray
+        Trajectory arrays (42, n) for each converged orbit in the family.
+    """
     trajList = []
     pList = []
     xCrossing.direction = direction
@@ -625,21 +739,53 @@ def lyapunovContinuation(ndx, t, mu=0.0121, dx=0.001, lim=0.9, direction=1):
             trajList.append(np.copy(traj))
             signLast = sign
             sign = np.sign(lim - trajList[-1][0][0])
-        except:
-            continue
+        except Exception as e:
+            # Retrying the same initial guess would fail the same way, so stop here
+            print(f"Warning: Lyapunov continuation stopped after {len(trajList)} orbits, solver failed: {e}")
+            break
     return trajList
 
 
 def haloConstraints(ndx):
+    """Return the halo orbit x-z plane crossing constraints [y, vx, vz]."""
     # y = xDot = zDot = 0.0
     return np.array([ndx[1], ndx[3], ndx[5]])
 
 
-def solveHalo(ndx, t, mu=0.0121, direction=-1):
+def solveHalo(ndx, t, mu=0.0121, direction=-1, max_iter=50):
+    """
+    Solve for a halo orbit using a differential corrector.
+
+    Parameters
+    ----------
+    ndx : np.ndarray, shape (42,)
+        Initial guess: non-dimensional state [x, y, z, vx, vy, vz] followed by the flattened 6x6 identity STM.
+    t : float
+        Initial guess for the half-period (time to the next x-z plane crossing).
+    mu : float, optional
+        Mass parameter of the system (default is 0.0121).
+    direction : int, optional
+        Direction of the x-z plane crossing event passed to solve_ivp (default is -1).
+    max_iter : int, optional
+        Maximum number of corrector iterations (default is 50).
+
+    Returns
+    -------
+    traj : np.ndarray, shape (42, n)
+        States and STMs along one full period of the corrected orbit.
+    period : float
+        Period of the corrected orbit.
+
+    Raises
+    ------
+    RuntimeError
+        If the crossing event fires at the initial state (direction has the same sign as the initial y-velocity),
+        or the corrector diverges (non-finite constraint norm) or does not converge within max_iter iterations.
+    """
     xCrossing.direction = direction
     # Initial guess
     xF = solve_ivp(
-        cr3bpOdeStm,
+        cr3bpOdeStmIvp,
         [0, t],
         ndx,
         args=[mu],
@@ -649,12 +795,14 @@ def solveHalo(ndx, t, mu=0.0121, direction=-1):
         events=xCrossing,
         dense_output=True,
     )
+    checkInitialCrossing(xF, direction, label="Halo")
     t0 = xF.t[-1]
     x0 = xF.y[:, 0]
     F = haloConstraints(xF.y[:, -1])
     Fnorm = np.linalg.norm(F)
     iteration = 0
-    while Fnorm > 1e-12:
+    # Explicit isfinite check: NaN > tol is False, so a NaN |F| would otherwise exit the loop as "converged"
+    while not np.isfinite(Fnorm) or Fnorm > 1e-12:
         x = xF.y[0, -1]
         y = xF.y[1, -1]
         z = xF.y[2, -1]
@@ -668,6 +816,7 @@ def solveHalo(ndx, t, mu=0.0121, direction=-1):
 
         F = haloConstraints(xF.y[:, -1])
         Fnorm = np.linalg.norm(F)
+        checkCorrectorProgress(iteration, Fnorm, max_iter, label="Halo")
         DF = np.array([[phi[1, 0], phi[1, 4], yDot], [phi[3, 0], phi[3, 4], xDotDot], [phi[5, 0], phi[5, 4], zDotDot]])
 
         dx = np.linalg.inv(DF) @ F
@@ -679,15 +828,42 @@ def solveHalo(ndx, t, mu=0.0121, direction=-1):
         x0[4] -= dx[1]
         t0 -= dx[2]
 
-        xF = solve_ivp(cr3bpOdeStm, [0, t0], x0, args=[mu], method="DOP853", rtol=1e-12, atol=1e-12, dense_output=True)
+        xF = solve_ivp(
+            cr3bpOdeStmIvp, [0, t0], x0, args=[mu], method="DOP853", rtol=1e-12, atol=1e-12, dense_output=True
+        )
     # Return full traj
-    xF = solve_ivp(cr3bpOdeStm, [0, 2 * t0], x0, args=[mu], method="DOP853", rtol=1e-12, atol=1e-12, dense_output=True)
+    xF = solve_ivp(
+        cr3bpOdeStmIvp, [0, 2 * t0], x0, args=[mu], method="DOP853", rtol=1e-12, atol=1e-12, dense_output=True
+    )
     return xF.y, xF.t[-1]
 
 
 def haloContinuation(ndx, t, mu=0.0121, dx=-0.001, lim=0.04, direction=-1):
+    """
+    Continuation method for generating a family of halo orbits.
+
+    Parameters
+    ----------
+    ndx : np.ndarray, shape (42,)
+        Initial state vector and flattened identity STM for the first halo orbit.
+    t : float
+        Initial guess for the half-period of the first orbit.
+    mu : float, optional
+        Mass parameter of the system (default is 0.0121).
+    dx : float, optional
+        Step size for continuation along the Z direction (default is -0.001).
+    lim : float, optional
+        Limit for the continuation (default is 0.04).
+    direction : int, optional
+        Direction of the x-z plane crossing event passed to solve_ivp (default is -1).
+
+    Returns
+    -------
+    trajList : list
+        List of trajectory arrays generated during continuation.
+    """
     trajList = []
-    traj1, IP = solveHalo(ndx, t, direction=direction)
+    traj1, IP = solveHalo(ndx, t, mu=mu, direction=direction)
     trajList.append(traj1)
     sign = np.sign(lim - trajList[-1][2][0])
     signLast = sign
@@ -702,8 +878,10 @@ def haloContinuation(ndx, t, mu=0.0121, dx=-0.001, lim=0.04, direction=-1):
 
             signLast = sign
             sign = np.sign(lim - trajList[-1][2][0])
-        except:
-            continue
+        except Exception as e:
+            # Retrying the same initial guess would fail the same way, so stop here
+            print(f"Warning: Halo continuation stopped after {len(trajList)} orbits, solver failed: {e}")
+            break
     return trajList
 
 

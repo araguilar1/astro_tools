@@ -19,7 +19,7 @@ Args = vf.Arguments
 
 
 class CR3BP_ST_FRAME:
-    """ "
+    """
     Basic Frame Implementation
 
     Parameters
@@ -46,15 +46,16 @@ class CR3BP_ST_FRAME:
         self.CalcPoints()
 
     def CalcPoints(self):
-        """Calculates location of system Lagrange Points. Called
-        when CR3BPFrame is initialized.
-
+        """
+        Calculate location of system Lagrange Points. Called when CR3BP_ST_FRAME is initialized.
 
         Parameters
         ----------
+        None
 
         Returns
         -------
+        None
 
         """
         mu = self.mu
@@ -93,6 +94,23 @@ class CR3BP_ST_FRAME:
         self.L3 = np.array([-mu - guess, 0, 0])
 
     def CR3BP_ST_EOMS(self, r, v):
+        """
+        Build the CR3BP equations of motion with a Sundman transform about P2.
+
+        The independent variable is the Sundman variable s, with dt/ds = |r - P2|.
+
+        Parameters
+        ----------
+        r : VectorFunction
+            Non-dimensional position (3)
+        v : VectorFunction
+            Non-dimensional velocity (3)
+
+        Returns
+        -------
+        VectorFunction
+            Stacked derivative with respect to s: [v * ST, acc * ST, ST]
+        """
 
         # Sundmann Transform term (distance from P2)
         ST = vf.norm(r - np.array([1 - self.mu, 0.0, 0.0]))
@@ -113,6 +131,12 @@ class CR3BP_ST_FRAME:
 
 
 class CR3BP_ST(ODEBase, CR3BP_ST_FRAME):
+    """
+    Sundman-transformed CR3BP ODE.
+
+    State: [x, y, z, vx, vy, vz, t, s], where t is time and s is the Sundman variable.
+    """
+
     def __init__(self, P1mu, P2mu, lstar):
         CR3BP_ST_FRAME.__init__(self, P1mu, P2mu, lstar)
         args = oc.ODEArguments(7, 0)

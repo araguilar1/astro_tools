@@ -407,7 +407,8 @@ def queryJpl3BodyApi(
     libr : str
         libration point. Required for lyapunov,halo (1,2,3), longp, short (4,5), and axial,vertical (1,2,3,4,5).
     branch : str
-        branch of orbits within the family: N/S for halo,dragonfly,butterfly, E/W for LPO, and pq integer sequence for resonant (e.g., 12 for 1:2).
+        branch of orbits within the family: N/S for halo,dragonfly,butterfly, E/W for LPO, and pq integer sequence for
+        resonant (e.g., 12 for 1:2).
     periodmin : str
         minimum period (inclusive). Units defined by periodunits.
     periodmax : str
@@ -476,28 +477,36 @@ class Jpl3BodyData:
         self.data = inData
 
     def sys(self):
+        """Return the system name."""
         return self.data["system"]["name"]
 
     def primary(self):
+        """Return the primary body name."""
         return self.data["system"]["name"].split("-")[0]
 
     def secondary(self):
+        """Return the secondary body name."""
         return self.data["system"]["name"].split("-")[1]
 
     def family(self):
+        """Return the orbit family name."""
         return self.data["family"]
 
     def libpoint(self):
+        """Return the libration point name."""
         return self.data["libration_point"]
 
     def mu(self):
+        """Return the mass parameter of the system."""
         return float(self.data["system"]["mass_ratio"])
 
     def lpoints(self):
+        """Return the list of libration point locations."""
         lpoints = [self.data["system"]["L{}".format(i)] for i in range(1, 6)]
         return [list(map(float, pos)) for pos in lpoints]
 
     def ics(self):
+        """Return the list of initial conditions for the orbit family."""
         initial_conditions = self.data["data"]
         return [list(map(float, ic)) for ic in initial_conditions]
 

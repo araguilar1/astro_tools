@@ -38,7 +38,8 @@ class BCR4BPFrame:
     theta0 : float
         Initial Sun Angle (radians)
     eta : float
-        Ratio of amount of perturbing force the Sun enforces on P3 (Spacecraft) in the Earth-Moon rotating frame (0=CR3BP,1=Full BCR4BP)
+        Ratio of amount of perturbing force the Sun enforces on P3 (Spacecraft) in the Earth-Moon rotating frame
+        (0=CR3BP,1=Full BCR4BP)
     """
 
     def __init__(self, mu1, mu2, mu4, lstarEM, lstarSB1, theta0, eta):
@@ -58,7 +59,9 @@ class BCR4BPFrame:
         self.m4 = mu4 / (mu1 + mu2)  # Non-dimensional mass of Sun
         self.a4 = self.lstarSB1 / self.lstarEM  # Non-dimensional distance from Sun to Earth-Moon Barycenter
 
-        self.theta0 = theta0  # Initial Angle between Earth-Moon X-Axis and the Sun's Position (radians), also used as the initial angle between the Sun-B1 X-axis and the Earth-Moon X-Axis (radians)
+        # Initial Angle between Earth-Moon X-Axis and the Sun's Position (radians), also used as the initial angle
+        # between the Sun-B1 X-axis and the Earth-Moon X-Axis (radians)
+        self.theta0 = theta0
         self.thetadot = np.sqrt((1.0 + self.m4) / self.a4**3) - 1.0  # Mean Motion of Sun - 1.0
         self.eta = eta  # Ratio of the amount of perturbiring force the Sun enforces on the s/c in the E-M frame
 
@@ -66,8 +69,7 @@ class BCR4BPFrame:
 
     def CalcPoints(self):
         """
-
-        Calculates location of system points in Earth-Moon frame. Called
+        Calculate location of system points in Earth-Moon frame. Called
         when BCR4BP is initialized.
 
         This function calculates the location of the points in the Earth-Moon
@@ -100,11 +102,7 @@ class BCR4BPFrame:
         )  # Variable
 
     def HamiltonianEM(self, ndx, theta):
-        """
-
-        Hamiltonian of the Earth-Moon system
-
-        """
+        """Return the Hamiltonian (Jacobi-like integral) of the Earth-Moon system at a given Sun angle."""
 
         a4 = self.a4
         m4 = self.m4
@@ -139,6 +137,27 @@ class BCR4BPFrame:
         return 2 * gamma - v**2
 
     def BCR4BPEOMS(self, r, v, theta, eta=1, otherAccs=[]):
+        """
+        Build the BCR4BP equations of motion in the Earth-Moon rotating frame.
+
+        Parameters
+        ----------
+        r : VectorFunction
+            Non-dimensional position (3)
+        v : VectorFunction
+            Non-dimensional velocity (3)
+        theta : VectorFunction
+            Sun angle (radians)
+        eta : float, optional
+            Scale factor on the Sun's perturbing acceleration (0=CR3BP, 1=Full BCR4BP)
+        otherAccs : list, optional
+            Additional acceleration terms to add to the dynamics
+
+        Returns
+        -------
+        VectorFunction
+            Stacked state derivative [v, acc, thetadot]
+        """
 
         a4 = self.a4
         m4 = self.m4
@@ -167,12 +186,29 @@ class BCR4BPFrame:
         return vf.stack(v, acc, thetadot)
 
     def BCR4BPSB1EOMS(self, r, v, theta, otherAccs=[]):
+        """
+        Build the BCR4BP equations of motion in the Sun-B1 rotating frame.
 
+        Parameters
+        ----------
+        r : VectorFunction
+            Non-dimensional position (3)
+        v : VectorFunction
+            Non-dimensional velocity (3)
+        theta : VectorFunction
+            Earth-Moon angle (radians)
+        otherAccs : list, optional
+            Additional acceleration terms to add to the dynamics
+
+        Returns
+        -------
+        VectorFunction
+            Stacked state derivative [v, acc, thetadot]
+        """
         mu = self.mu
         muprime = self.muprime
         a4 = self.a4
         m4 = self.m4
-        P4mu = self.P4mu
         P4SB1 = self.P4SB1
 
         x = r[0]
@@ -202,6 +238,8 @@ class BCR4BPFrame:
 
 
 class BCR4BP(ODEBase, BCR4BPFrame):
+    """BCR4BP ODE in the Earth-Moon rotating frame. State: [x, y, z, vx, vy, vz, theta, t]."""
+
     def __init__(self, P1mu, P2mu, P3mu, lstarEM, lstarSB1, theta0, eta):
         BCR4BPFrame.__init__(self, P1mu, P2mu, P3mu, lstarEM, lstarSB1, theta0, eta)
 
@@ -215,6 +253,8 @@ class BCR4BP(ODEBase, BCR4BPFrame):
 
 
 class BCR4BPSB1(ODEBase, BCR4BPFrame):
+    """BCR4BP ODE in the Sun-B1 rotating frame. State: [x, y, z, vx, vy, vz, theta, t]."""
+
     def __init__(self, P1mu, P2mu, P3mu, lstarEM, lstarSB1, theta0, eta=1):
         BCR4BPFrame.__init__(self, P1mu, P2mu, P3mu, lstarEM, lstarSB1, theta0, eta)
 

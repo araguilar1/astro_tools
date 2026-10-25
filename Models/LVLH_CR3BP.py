@@ -43,10 +43,12 @@ class LVLHFrame:
         self.mu = p2mu / (p1mu + p2mu)
 
     def dd(self, vec, vecdot):
+        """Return the time derivative of vec / |vec|^3 as an ASSET VectorFunction."""
         mag = vf.norm(vec)
         return vecdot / (mag * mag * mag) + vec * (-3 / (mag * mag * mag * mag * mag) * (vec.dot(vecdot)))
 
     def dd_np(self, vec, vecdot):
+        """Return the time derivative of vec / |vec|^3 for numpy arrays."""
         mag = np.linalg.norm(vec)
         return vecdot / (mag * mag * mag) + vec * (-3 / (mag * mag * mag * mag * mag) * (vec.dot(vecdot)))
 

@@ -89,60 +89,39 @@ def fwdLinkDvObj():
 
 
 class massObjLt(vf.ScalarFunction):
+    """
+    Low-Thrust Mass Optimal Objective Function
+
+    Parameters
+    ----------
+    scale : float
+        Scale of control vector norm
+    """
+
     def __init__(self, scale):
-        """
-        Low-Thrust Mass Optimal Objective Function
-
-        Parameters
-        ----------
-        scale : float
-            Scale of control vector norm
-
-        Returns
-        -------
-        asset_asrl.VectorFunctions.ScalarFunction
-
-        """
-
         u = Args(3)
         super().__init__(u.norm() * scale)
 
 
 class powerObjLt(vf.ScalarFunction):
+    """
+    Low-Thrust Power Optimal Objective Function
+
+    Parameters
+    ----------
+    scale : float
+        Scale of control vector norm squared
+    """
+
     def __init__(self, scale):
-        """
-        Low-Thrust Power Optimal Objective Function
-
-        Parameters
-        ----------
-        scale : float
-            Scale of control vector norm squared
-
-        Returns
-        -------
-        asset_asrl.VectorFunctions.ScalarFunction
-
-        """
-
         u = Args(3)
         super().__init__(u.norm().squared() * scale)
 
 
 class momentumIntegralObj(vf.ScalarFunction):
+    """Momentum Integral Objective Function (r . v for a 6-element [r, v] input)."""
+
     def __init__(self):
-        """
-        Momentum Integral Objective Function
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        asset_asrl.VectorFunctions.ScalarFunction
-
-        """
-
         RV = Args(6)
 
         x, y, z, vx, vy, vz = RV.tolist()
