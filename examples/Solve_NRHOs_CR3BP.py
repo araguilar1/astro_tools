@@ -7,19 +7,19 @@ Initial Conditions from pages 245-246 of Dr. Emily Spreen's PhD Disseration:
 TRAJECTORY DESIGN AND TARGETING FOR APPLICATIONS TO THE EXPLORATION PROGRAM IN CISLUNAR SPACE
 """
 
-import sys
 import pathlib
+import sys
 
 sys.path.append(str(pathlib.Path(__file__).parents[1].absolute()))
 
 import numpy as np
 from prettytable import PrettyTable
 
-from Models.CR3BP import CR3BP
+from astro import CelestialObject, characteristicQuantities, jacobi
 from CR3BP_Utils.solve_periodic_orbit import solvePeriodic
 from data_utils import writeDataToPkl
-from astro import jacobi, CelestialObject, characteristicQuantities
 from general_utils import EARTH_MOON_CR3BP_DAY
+from Models.CR3BP import CR3BP
 
 ########### Define CR3BP ODE ###########
 earth = CelestialObject("Earth")

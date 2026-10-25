@@ -15,10 +15,10 @@ Functions have the following naming convention:
 12/29/2019: Creation
 """
 
-import numpy as np
-from scipy.constants import G
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy.constants import G
 from scipy.integrate import solve_ivp
 from scipy.optimize import newton
 
@@ -492,7 +492,7 @@ def plotZvc(mu, C, fill=0):
         for j in range(npoints):
             ndx = np.array([x[i], y[j], 0.0])
             temp = jacobi(ndx, mu)
-            if (C >= temp) and (temp > (C * (1 - eps))):
+            if (temp <= C) and (temp > (C * (1 - eps))):
                 ZZ[j, i] = temp
                 zzPos[j, i] = 1
 

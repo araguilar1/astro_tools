@@ -5,8 +5,7 @@ Left panel layout: system selection, family browser, differential corrector inpu
 """
 
 import dash_bootstrap_components as dbc
-from dash import html, dcc, dash_table
-
+from dash import dash_table, dcc, html
 
 # All bodies from CelestialObject
 BODY_OPTIONS = [

@@ -13,9 +13,9 @@ p1DistCon     : P1 distance Inequality Constraint
 
 """
 
-from asset_asrl.VectorFunctions import Arguments as Args
 import asset_asrl.OptimalControl as oc
 import numpy as np
+from asset_asrl.VectorFunctions import Arguments as Args
 
 
 def posConTable(table):

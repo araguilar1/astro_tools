@@ -15,9 +15,9 @@ massObjLt  : Low-Thrust Mass Optimal Objective
 powerObjLt : Low-Thrust Power Optimal Objective
 """
 
+import asset_asrl.OptimalControl as oc
 import asset_asrl.VectorFunctions as vf
 from asset_asrl.VectorFunctions import Arguments as Args
-import asset_asrl.OptimalControl as oc
 
 
 def dvObjTable(table):

@@ -14,9 +14,9 @@ plotPoincareMap             : plot a basic 2-D Poincare Map
 savePlotlyFig               : save a plotly figure
 """
 
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
 
 
 def makeSphere(x, y, z, r, resolution=20):

@@ -18,8 +18,8 @@ xCrossP1Event   : event when spacecraft crosses P1 x position
 
 """
 
-from asset_asrl.VectorFunctions import Arguments as Args
 import numpy as np
+from asset_asrl.VectorFunctions import Arguments as Args
 
 
 def apseEvent(st_flag=False):

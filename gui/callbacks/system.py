@@ -4,12 +4,13 @@ system.py
 Callbacks for body pair selection and system parameter computation.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from dash import Input, Output, callback, html
+
 from astro import CelestialObject, characteristicQuantities, lagrangePoints
 
 

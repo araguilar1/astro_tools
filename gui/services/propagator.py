@@ -10,8 +10,8 @@ propagate_orbit   : Propagate a single orbit using ASSET DOPRI87
 propagate_family  : Propagate a list of orbits
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 

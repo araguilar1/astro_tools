@@ -4,16 +4,16 @@ corrector.py
 Callbacks for differential corrector execution and console output polling.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from dash import Input, Output, State, callback, no_update
 import plotly.graph_objects as go
-
-from services.propagator import create_ode
+from dash import Input, Output, State, callback, no_update
 from services.corrector_runner import CorrectorRunner
+from services.propagator import create_ode
+
 from astro import jacobi as compute_jacobi
 
 # Module-level runner instance

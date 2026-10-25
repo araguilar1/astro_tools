@@ -12,9 +12,10 @@ getManifoldInitialConditionsDrDv : returns manifold initial conditions computed 
 getManifoldInitialConditionsDr   : returns manifold initial conditions computed by perturbing position along eigenvector
 """
 
-from .stm import computeStmParallel, computeStableUnstableEigenvectors
-from ..general_utils import M_TO_KM
 import numpy as np
+
+from ..general_utils import M_TO_KM
+from .stm import computeStableUnstableEigenvectors, computeStmParallel
 
 
 def getManifoldsDrDv(

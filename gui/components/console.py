@@ -5,7 +5,7 @@ Bottom panel: terminal-style log output for corrector iterations.
 """
 
 import dash_bootstrap_components as dbc
-from dash import html, dcc
+from dash import dcc, html
 
 
 def create_console():

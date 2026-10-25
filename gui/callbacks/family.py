@@ -4,22 +4,20 @@ family.py
 Callbacks for family browsing, orbit rendering, color-by, and click-to-populate.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from dash import Input, Output, State, callback, html, no_update
 import plotly.graph_objects as go
-
+from dash import Input, Output, State, callback, html, no_update
 from services.data_loader import (
+    filter_orbits,
     get_available_families,
     get_available_modifiers,
-    filter_orbits,
     orbit_row_to_ic,
 )
 from services.propagator import create_ode, propagate_orbit
-
 
 # --- Cascade dropdowns ---
 

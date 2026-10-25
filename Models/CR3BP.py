@@ -10,8 +10,8 @@ Classes
 """
 
 import asset_asrl as ast
-from asset_asrl.OptimalControl import ODEBase
 import numpy as np
+from asset_asrl.OptimalControl import ODEBase
 
 vf = ast.VectorFunctions
 Args = vf.Arguments

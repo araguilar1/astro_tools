@@ -9,8 +9,8 @@ Classes
     CR3BP_ST       : Generic ODE implementation of the CR3BP_ST_FRAME in ASSET format
 """
 
-import numpy as np
 import asset_asrl as ast
+import numpy as np
 from asset_asrl.OptimalControl import ODEBase
 
 vf = ast.VectorFunctions

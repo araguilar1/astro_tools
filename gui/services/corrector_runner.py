@@ -8,11 +8,11 @@ Classes
 CorrectorRunner : Threaded corrector with stdout capture and queue-based output
 """
 
-import sys
-import os
 import io
-import threading
+import os
 import queue
+import sys
+import threading
 import traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))

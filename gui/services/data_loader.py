@@ -12,8 +12,8 @@ filter_orbits                 : Filter catalog rows by LP, family, modifier
 orbit_row_to_ic               : Extract initial condition from a row
 """
 
-import os
 import csv
+import os
 
 _CSV_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "data", "Periodic Orbit Data", "periodicLagrangeOrbits.csv"

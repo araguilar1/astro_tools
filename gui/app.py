@@ -9,8 +9,8 @@ Usage
     # Open http://127.0.0.1:8050 in browser
 """
 
-import sys
 import os
+import sys
 
 # Ensure project root is on the path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -18,11 +18,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import dcc
-
+from components.console import create_console
 from components.sidebar import create_sidebar
 from components.viewer import create_viewer
-from components.console import create_console
+from dash import dcc
 
 app = dash.Dash(
     __name__,
@@ -57,9 +56,9 @@ app.layout = dbc.Container(
 )
 
 # Import callbacks to register them with the app
-import callbacks.system  # noqa: F401
-import callbacks.family  # noqa: F401
 import callbacks.corrector  # noqa: F401
+import callbacks.family  # noqa: F401
+import callbacks.system  # noqa: F401
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=8050)

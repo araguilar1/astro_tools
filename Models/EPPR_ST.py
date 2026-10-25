@@ -9,12 +9,12 @@ Classes
     EPPR_ST       :  Generic ODE implementation of the EPPR_ST_Frame in ASSET format
 """
 
-import numpy as np
 import asset_asrl as ast
 import asset_asrl.Astro.Constants as c
-from asset_asrl.Astro.SpiceRead import GetEphemTraj2, PoleVector, SpiceFrameTransform
-from asset_asrl.Astro.Extensions.CR3BPFrame import CR3BPFrame
+import numpy as np
 from asset_asrl.Astro.DataReadWrite import ReadCopernicusFile
+from asset_asrl.Astro.Extensions.CR3BPFrame import CR3BPFrame
+from asset_asrl.Astro.SpiceRead import GetEphemTraj2, PoleVector, SpiceFrameTransform
 from asset_asrl.OptimalControl import ODEBase
 
 BProps = c.SpiceBodyProps

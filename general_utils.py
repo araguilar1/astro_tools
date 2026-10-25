@@ -20,13 +20,13 @@ Jpl3BodyData                 : Holds the JPL 3Body API returned data
 
 """
 
-import requests
 import json
-import numpy as np
-from scipy.spatial import KDTree
-import asset_asrl.Astro.Constants as c
 
+import asset_asrl.Astro.Constants as c
+import numpy as np
+import requests
 from asset_asrl.Astro import cartesian_to_classic_true
+from scipy.spatial import KDTree
 
 M_TO_KM = 1e-3
 KM_TO_M = 1e3

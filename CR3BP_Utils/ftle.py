@@ -10,7 +10,8 @@ computeLocalLyapunovExponents : Compute LLEs
 """
 
 import numpy as np
-from .stm import computeStmParallel, computeCauchyGreenTensor
+
+from .stm import computeCauchyGreenTensor, computeStmParallel
 
 
 def computeLocalLyapunovExponents(ode, traj: list, time_horizon: list, nt: int = 12, nthreads: int = 8) -> np.ndarray:
