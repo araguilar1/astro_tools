@@ -1,8 +1,6 @@
 """
 ftle.py
 
-
-
 Functions to Compute Finite Time Lyapunov Exponents
 
 Functions
@@ -10,10 +8,12 @@ Functions
 computeLocalLyapunovExponents : Compute LLEs
 
 """
+
 import numpy as np
 from .stm import computeStmParallel, computeCauchyGreenTensor
 
-def computeLocalLyapunovExponents(ode, traj:list, time_horizon:list, nt:int=12, nthreads:int=8) -> np.ndarray:
+
+def computeLocalLyapunovExponents(ode, traj: list, time_horizon: list, nt: int = 12, nthreads: int = 8) -> np.ndarray:
     """
     Compute Local Lyapunov Exponents
 
@@ -51,13 +51,12 @@ def computeLocalLyapunovExponents(ode, traj:list, time_horizon:list, nt:int=12, 
 
         for i in range(npoints):
             for j, stm in enumerate(stms):
-
                 cgt = computeCauchyGreenTensor(stm)
 
                 eig_val, _ = np.linalg.eig(cgt)
 
                 local_lypaunov_exp[j] = np.log(np.sqrt(np.max(np.abs(eig_val))))
 
-            lle[i,:] = local_lypaunov_exp[:]
+            lle[i, :] = local_lypaunov_exp[:]
 
     return lle

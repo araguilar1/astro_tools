@@ -47,10 +47,7 @@ def get_available_families(lagrange_point):
 def get_available_modifiers(lagrange_point, family):
     """Return sorted list of unique modifiers for a LP + family combo."""
     rows = _load_catalog()
-    mods = sorted(set(
-        r["Modifier"] for r in rows
-        if r["LagrangePoint"] == lagrange_point and r["Family"] == family
-    ))
+    mods = sorted(set(r["Modifier"] for r in rows if r["LagrangePoint"] == lagrange_point and r["Family"] == family))
     return mods
 
 

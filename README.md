@@ -397,6 +397,7 @@ where σmax is the largest singular value of the flow map Φ.
 - **ASSET alias convention** (top of files in Models/ and CR3BP_Utils/):
   ```python
   import asset_asrl as ast
+
   vf = ast.VectorFunctions
   oc = ast.OptimalControl
   Args = vf.Arguments

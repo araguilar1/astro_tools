@@ -6,11 +6,10 @@ Callbacks for family browsing, orbit rendering, color-by, and click-to-populate.
 
 import sys
 import os
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from dash import Input, Output, State, callback, html, no_update, ctx
+from dash import Input, Output, State, callback, html, no_update
 import plotly.graph_objects as go
 
 from services.data_loader import (
@@ -23,6 +22,7 @@ from services.propagator import create_ode, propagate_orbit
 
 
 # --- Cascade dropdowns ---
+
 
 @callback(
     Output("family-dropdown", "options"),
@@ -56,6 +56,7 @@ def update_modifier_options(lp, family):
 
 # --- Orbit data table ---
 
+
 @callback(
     Output("orbit-data-table", "data"),
     Output("orbit-count-badge", "children"),
@@ -69,19 +70,22 @@ def update_orbit_table(lp, family, modifier):
     rows = filter_orbits(lp, family, modifier)
     table_data = []
     for r in rows:
-        table_data.append({
-            "x0": round(float(r["x0"]), 6),
-            "z0": round(float(r["z0"]), 6),
-            "yDot0": round(float(r["yDot0"]), 6),
-            "T": round(float(r["T"]), 4),
-            "JacobiValue": round(float(r["JacobiValue"]), 6),
-            "Stability_Index": round(float(r["Stability_Index"]), 4),
-        })
+        table_data.append(
+            {
+                "x0": round(float(r["x0"]), 6),
+                "z0": round(float(r["z0"]), 6),
+                "yDot0": round(float(r["yDot0"]), 6),
+                "T": round(float(r["T"]), 4),
+                "JacobiValue": round(float(r["JacobiValue"]), 6),
+                "Stability_Index": round(float(r["Stability_Index"]), 4),
+            }
+        )
     badge = html.Span(f"{len(rows)} orbits", className="orbit-count")
     return table_data, badge
 
 
 # --- Render family ---
+
 
 @callback(
     Output("orbit-3d-plot", "figure"),
@@ -147,86 +151,117 @@ def render_family(n_clicks, lp, family, modifier, sys_params, color_by):
         mn, mx = min(metric), max(metric)
         rng = mx - mn if mx != mn else 1.0
         import plotly.colors as pc
+
         plasma = pc.sequential.Plasma
         n_colors = len(plasma)
 
-        for (xs, ys, zs, idx) in traces:
+        for xs, ys, zs, idx in traces:
             norm = (metric[idx] - mn) / rng
             ci = int(norm * (n_colors - 1))
             ci = max(0, min(ci, n_colors - 1))
             color = plasma[ci]
-            fig.add_trace(go.Scatter3d(
-                x=xs, y=ys, z=zs,
-                mode="lines",
-                line=dict(color=color, width=2),
-                name=f"Orbit {idx}",
-                customdata=[idx],
-                hovertemplate=f"{colorbar_title}={metric[idx]:.4f}<extra>Orbit {idx}</extra>",
-                showlegend=False,
-            ))
+            fig.add_trace(
+                go.Scatter3d(
+                    x=xs,
+                    y=ys,
+                    z=zs,
+                    mode="lines",
+                    line=dict(color=color, width=2),
+                    name=f"Orbit {idx}",
+                    customdata=[idx],
+                    hovertemplate=f"{colorbar_title}={metric[idx]:.4f}<extra>Orbit {idx}</extra>",
+                    showlegend=False,
+                )
+            )
 
         # Invisible trace for colorbar
-        fig.add_trace(go.Scatter3d(
-            x=[None], y=[None], z=[None],
-            mode="markers",
-            marker=dict(
-                size=0.001,
-                color=[mn, mx],
-                colorscale="Plasma",
-                colorbar=dict(title=colorbar_title, thickness=15, len=0.5),
-                showscale=True,
-            ),
-            showlegend=False,
-            hoverinfo="skip",
-        ))
-    else:
-        for (xs, ys, zs, idx) in traces:
-            fig.add_trace(go.Scatter3d(
-                x=xs, y=ys, z=zs,
-                mode="lines",
-                line=dict(color="#00ccff", width=2),
-                name=f"Orbit {idx}",
-                customdata=[idx],
+        fig.add_trace(
+            go.Scatter3d(
+                x=[None],
+                y=[None],
+                z=[None],
+                mode="markers",
+                marker=dict(
+                    size=0.001,
+                    color=[mn, mx],
+                    colorscale="Plasma",
+                    colorbar=dict(title=colorbar_title, thickness=15, len=0.5),
+                    showscale=True,
+                ),
                 showlegend=False,
-            ))
+                hoverinfo="skip",
+            )
+        )
+    else:
+        for xs, ys, zs, idx in traces:
+            fig.add_trace(
+                go.Scatter3d(
+                    x=xs,
+                    y=ys,
+                    z=zs,
+                    mode="lines",
+                    line=dict(color="#00ccff", width=2),
+                    name=f"Orbit {idx}",
+                    customdata=[idx],
+                    showlegend=False,
+                )
+            )
 
     # P1 and P2 markers
-    fig.add_trace(go.Scatter3d(
-        x=[-mu], y=[0], z=[0],
-        mode="markers+text",
-        marker=dict(size=6, color="#ffaa00"),
-        text=["P1"], textposition="top center",
-        textfont=dict(color="#ffaa00", size=10),
-        showlegend=False, hoverinfo="text",
-    ))
-    fig.add_trace(go.Scatter3d(
-        x=[1 - mu], y=[0], z=[0],
-        mode="markers+text",
-        marker=dict(size=4, color="#aaaaff"),
-        text=["P2"], textposition="top center",
-        textfont=dict(color="#aaaaff", size=10),
-        showlegend=False, hoverinfo="text",
-    ))
+    fig.add_trace(
+        go.Scatter3d(
+            x=[-mu],
+            y=[0],
+            z=[0],
+            mode="markers+text",
+            marker=dict(size=6, color="#ffaa00"),
+            text=["P1"],
+            textposition="top center",
+            textfont=dict(color="#ffaa00", size=10),
+            showlegend=False,
+            hoverinfo="text",
+        )
+    )
+    fig.add_trace(
+        go.Scatter3d(
+            x=[1 - mu],
+            y=[0],
+            z=[0],
+            mode="markers+text",
+            marker=dict(size=4, color="#aaaaff"),
+            text=["P2"],
+            textposition="top center",
+            textfont=dict(color="#aaaaff", size=10),
+            showlegend=False,
+            hoverinfo="text",
+        )
+    )
 
     # Lagrange point markers
     lp_names = ["L1", "L2", "L3", "L4", "L5"]
     if lps_data:
         for i, name in enumerate(lp_names):
-            fig.add_trace(go.Scatter3d(
-                x=[lps_data[i][0]], y=[lps_data[i][1]], z=[0],
-                mode="markers+text",
-                marker=dict(
-                    size=4,
-                    symbol="diamond",
-                    color="#ff5555" if name == lp else "#555577",
-                ),
-                text=[name], textposition="top center",
-                textfont=dict(
-                    color="#ff5555" if name == lp else "#555577",
-                    size=9,
-                ),
-                showlegend=False, hoverinfo="text",
-            ))
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[lps_data[i][0]],
+                    y=[lps_data[i][1]],
+                    z=[0],
+                    mode="markers+text",
+                    marker=dict(
+                        size=4,
+                        symbol="diamond",
+                        color="#ff5555" if name == lp else "#555577",
+                    ),
+                    text=[name],
+                    textposition="top center",
+                    textfont=dict(
+                        color="#ff5555" if name == lp else "#555577",
+                        size=9,
+                    ),
+                    showlegend=False,
+                    hoverinfo="text",
+                )
+            )
 
     fig.update_layout(
         template="plotly_dark",
@@ -241,13 +276,17 @@ def render_family(n_clicks, lp, family, modifier, sys_params, color_by):
         ),
         margin=dict(l=0, r=0, t=30, b=0),
         font=dict(family="JetBrains Mono, monospace", color="#8090b0"),
-        title=dict(text=f"{lp} {family}{' ' + modifier if modifier else ''} — {len(rows)} orbits", font=dict(size=14, color="#7090ff")),
+        title=dict(
+            text=f"{lp} {family}{' ' + modifier if modifier else ''} — {len(rows)} orbits",
+            font=dict(size=14, color="#7090ff"),
+        ),
     )
 
     return fig
 
 
 # --- Click orbit table row to populate corrector inputs ---
+
 
 @callback(
     Output("ic-x", "value"),

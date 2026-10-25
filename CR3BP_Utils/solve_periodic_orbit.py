@@ -1,8 +1,6 @@
 """
 solve_periodic_orbit.py
 
-
-
 Solve a Periodic Orbit
 
 Functions
@@ -10,9 +8,11 @@ Functions
 solvePeriodic : Solve Periodic Orbit (feasible solution)
 
 """
+
 import numpy as np
 
-def solvePeriodic(ig: np.array, tf: float, ode, print_level=0, fix_init=[0,1,2,3,6], fix_end=[1,3,5])->list:
+
+def solvePeriodic(ig: np.array, tf: float, ode, print_level=0, fix_init=[0, 1, 2, 3, 6], fix_end=[1, 3, 5]) -> list:
     """
     Solve a Periodic Orbit in the CR3BP assuming a perpendicular x-axis crossing
 
@@ -35,7 +35,7 @@ def solvePeriodic(ig: np.array, tf: float, ode, print_level=0, fix_init=[0,1,2,3
         Solved Periodic Orbit
     """
     # define integrator
-    integrator = ode.integrator('DOPRI87',1e-4)
+    integrator = ode.integrator("DOPRI87", 1e-4)
 
     # integrate initial guess
     steps = 10000
@@ -44,15 +44,15 @@ def solvePeriodic(ig: np.array, tf: float, ode, print_level=0, fix_init=[0,1,2,3
     # create phase
     phase = ode.phase("LGL5")
     phase.Threads = 8
-    
+
     nseg = 500
 
-    phase.setTraj(traj_guess,nseg)
+    phase.setTraj(traj_guess, nseg)
     for idx in fix_init:
-        phase.addBoundaryValue("Front",[idx],[0.0])
-    
+        phase.addBoundaryValue("Front", [idx], [0.0])
+
     for idx in fix_end:
-        phase.addBoundaryValue("Back",[idx],[0.0])
+        phase.addBoundaryValue("Back", [idx], [0.0])
 
     # solve
     tol = 1e-12
@@ -61,7 +61,7 @@ def solvePeriodic(ig: np.array, tf: float, ode, print_level=0, fix_init=[0,1,2,3
     phase.optimize()
 
     # return solution
-    traj  = phase.returnTraj()
+    traj = phase.returnTraj()
     cflag = phase.optimizer.get_ConvergenceFlag()
 
     return traj, cflag

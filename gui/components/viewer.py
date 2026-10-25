@@ -4,7 +4,6 @@ viewer.py
 Center panel: 3D Plotly scatter plot for orbit visualization.
 """
 
-import dash_bootstrap_components as dbc
 from dash import html, dcc
 import plotly.graph_objects as go
 

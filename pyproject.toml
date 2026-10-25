@@ -3,7 +3,7 @@ name = "astro_tools"
 version = "0.1.0"
 description = "Astrodynamics tools for use in trajectory design."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 authors = [
     { name = "Abram Aguilar", email = "abrama71@gmail.com"}
 ]

@@ -1,7 +1,5 @@
-""""
+"""
 asset_utils.py
-
-
 
 Utilities built to easily interact with the ASSET Python Package
 
@@ -12,15 +10,16 @@ runJetJobAllSolutions  : run a jet job and return all solutions regardless of co
 """
 
 import asset_asrl as ast
-vf      = ast.VectorFunctions
-oc      = ast.OptimalControl
+
+vf = ast.VectorFunctions
+oc = ast.OptimalControl
 solvers = ast.Solvers
-Args    = vf.Arguments
-cflags  = solvers.ConvergenceFlags
-tmodes  = oc.TranscriptionModes
+Args = vf.Arguments
+cflags = solvers.ConvergenceFlags
+tmodes = oc.TranscriptionModes
 
 
-def runJetJobConvergedOnly(ocps:list, ncores:int, printOutput:bool=True)->list:
+def runJetJobConvergedOnly(ocps: list, ncores: int, printOutput: bool = True) -> list:
     """
     Run a Jet job and return converged solutions
 
@@ -48,10 +47,10 @@ def runJetJobConvergedOnly(ocps:list, ncores:int, printOutput:bool=True)->list:
     return converged_ocps
 
 
-def runJetJobAllSolutions(ocps:list, ncores:int, printOutput:bool=True)->list:
+def runJetJobAllSolutions(ocps: list, ncores: int, printOutput: bool = True) -> list:
     """
     Run a Jet job and return all solutions regardless of convergence status
-    
+
     Parameters
     ----------
     ocps : list

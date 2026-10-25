@@ -15,8 +15,12 @@ def create_console():
                 [
                     html.Span("Console", className="console-title"),
                     dbc.Button(
-                        "Clear", id="clear-console-btn", size="sm",
-                        color="secondary", outline=True, className="console-clear-btn",
+                        "Clear",
+                        id="clear-console-btn",
+                        size="sm",
+                        color="secondary",
+                        outline=True,
+                        className="console-clear-btn",
                     ),
                 ],
                 className="console-header",

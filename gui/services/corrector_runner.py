@@ -103,7 +103,9 @@ class CorrectorRunner:
                 sys.stdout = captured
                 ig = list(state_6) + [0.0]
                 traj, cflag = solvePeriodic(
-                    ig, period, ode,
+                    ig,
+                    period,
+                    ode,
                     print_level=0,
                     fix_init=fix_init,
                     fix_end=fix_end,

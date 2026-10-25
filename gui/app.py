@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import html, dcc
+from dash import dcc
 
 from components.sidebar import create_sidebar
 from components.viewer import create_viewer
@@ -36,12 +36,10 @@ app.layout = dbc.Container(
         # Shared state stores
         dcc.Store(id="system-params", data={}),
         dcc.Store(id="corrector-result", data=None),
-
         dbc.Row(
             [
                 # Left sidebar
                 create_sidebar(),
-
                 # Main area: viewer + console
                 dbc.Col(
                     [
@@ -59,8 +57,8 @@ app.layout = dbc.Container(
 )
 
 # Import callbacks to register them with the app
-import callbacks.system   # noqa: F401
-import callbacks.family   # noqa: F401
+import callbacks.system  # noqa: F401
+import callbacks.family  # noqa: F401
 import callbacks.corrector  # noqa: F401
 
 if __name__ == "__main__":

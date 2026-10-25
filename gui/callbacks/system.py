@@ -6,7 +6,6 @@ Callbacks for body pair selection and system parameter computation.
 
 import sys
 import os
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -44,10 +43,12 @@ def update_system(primary_name, secondary_name):
         "lagrange_points": lps.tolist(),
     }
 
-    info = html.Div([
-        html.Div(f"\u03bc = {mu:.10f}", className="sys-param"),
-        html.Div(f"l* = {lstar:.2f} km", className="sys-param"),
-        html.Div(f"t* = {tstar:.2f} s", className="sys-param"),
-    ])
+    info = html.Div(
+        [
+            html.Div(f"\u03bc = {mu:.10f}", className="sys-param"),
+            html.Div(f"l* = {lstar:.2f} km", className="sys-param"),
+            html.Div(f"t* = {tstar:.2f} s", className="sys-param"),
+        ]
+    )
 
     return params, info

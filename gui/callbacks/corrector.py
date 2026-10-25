@@ -9,10 +9,10 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from dash import Input, Output, State, callback, no_update, ctx
+from dash import Input, Output, State, callback, no_update
 import plotly.graph_objects as go
 
-from services.propagator import create_ode, propagate_orbit
+from services.propagator import create_ode
 from services.corrector_runner import CorrectorRunner
 from astro import jacobi as compute_jacobi
 
@@ -45,8 +45,7 @@ def _parse_index_list(text):
     State("console-output", "children"),
     prevent_initial_call=True,
 )
-def start_corrector(n_clicks, x, y, z, vx, vy, vz, period,
-                    fix_init_str, fix_end_str, sys_params, console_text):
+def start_corrector(n_clicks, x, y, z, vx, vy, vz, period, fix_init_str, fix_end_str, sys_params, console_text):
     if not sys_params:
         return True, (console_text or "") + "Error: No system selected.\n", no_update
 
@@ -129,6 +128,7 @@ def poll_corrector(n_intervals, console_text, sys_params):
 
 # --- Plot corrected orbit ---
 
+
 @callback(
     Output("orbit-3d-plot", "figure", allow_duplicate=True),
     Input("corrector-result", "data"),
@@ -145,26 +145,35 @@ def plot_corrected_orbit(result_data, current_fig):
     zs = [s[2] for s in traj]
 
     fig = go.Figure(current_fig)
-    fig.add_trace(go.Scatter3d(
-        x=xs, y=ys, z=zs,
-        mode="lines",
-        line=dict(color="#ffffff", width=4),
-        name="Corrected",
-        showlegend=True,
-    ))
+    fig.add_trace(
+        go.Scatter3d(
+            x=xs,
+            y=ys,
+            z=zs,
+            mode="lines",
+            line=dict(color="#ffffff", width=4),
+            name="Corrected",
+            showlegend=True,
+        )
+    )
     # Starting point marker
-    fig.add_trace(go.Scatter3d(
-        x=[xs[0]], y=[ys[0]], z=[zs[0]],
-        mode="markers",
-        marker=dict(size=5, color="#00ff88", symbol="circle"),
-        name="IC",
-        showlegend=True,
-    ))
+    fig.add_trace(
+        go.Scatter3d(
+            x=[xs[0]],
+            y=[ys[0]],
+            z=[zs[0]],
+            mode="markers",
+            marker=dict(size=5, color="#00ff88", symbol="circle"),
+            name="IC",
+            showlegend=True,
+        )
+    )
 
     return fig
 
 
 # --- Clear console ---
+
 
 @callback(
     Output("console-output", "children"),

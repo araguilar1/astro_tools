@@ -4,8 +4,6 @@ __pycache__/
 # Ignore .vscode folder
 .vscode/*
 
-.claude/
-
 examples/output/*.png
 examples/output/*.html
 
@@ -13,5 +11,4 @@ examples/output/*.html
 venv/
 env/
 .venv/
-.env
-CLAUDE.md
+.env/

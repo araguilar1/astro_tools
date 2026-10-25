@@ -10,11 +10,29 @@ from dash import html, dcc, dash_table
 
 # All bodies from CelestialObject
 BODY_OPTIONS = [
-    "Sun", "Moon", "Mercury", "Venus", "Earth", "Mars",
-    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
-    "Charon", "Nix", "Hydra", "Ganymede", "Titan",
-    "Titania", "Ceres", "Enceladus", "Phobos", "Triton",
-    "Callisto", "Europa",
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Charon",
+    "Nix",
+    "Hydra",
+    "Ganymede",
+    "Titan",
+    "Titania",
+    "Ceres",
+    "Enceladus",
+    "Phobos",
+    "Triton",
+    "Callisto",
+    "Europa",
 ]
 
 
@@ -40,7 +58,6 @@ def create_sidebar():
             make_dropdown("secondary-body", BODY_OPTIONS, "Moon"),
             html.Div(id="system-info", className="system-info mt-2"),
             html.Hr(className="sidebar-hr"),
-
             # --- Family Selection ---
             html.H5("Orbit Family", className="sidebar-heading"),
             html.Label("Lagrange Point", className="input-label"),
@@ -57,10 +74,11 @@ def create_sidebar():
                 "Uniform",
             ),
             dbc.Button(
-                "Render Family", id="render-family-btn", color="primary",
+                "Render Family",
+                id="render-family-btn",
+                color="primary",
                 className="mt-3 w-100",
             ),
-
             # --- Orbit Data Table ---
             html.Div(
                 dash_table.DataTable(
@@ -97,14 +115,14 @@ def create_sidebar():
                 ),
                 className="mt-3",
             ),
-
             html.Hr(className="sidebar-hr"),
-
             # --- Differential Corrector ---
             html.H5("Differential Corrector", className="sidebar-heading"),
             *_corrector_inputs(),
             dbc.Button(
-                "Correct Orbit", id="correct-orbit-btn", color="success",
+                "Correct Orbit",
+                id="correct-orbit-btn",
+                color="success",
                 className="mt-3 w-100",
             ),
         ],
@@ -116,24 +134,38 @@ def create_sidebar():
 def _corrector_inputs():
     """Generate the 6 state inputs + period + fix-index inputs."""
     defaults = {
-        "ic-x": 0.8234, "ic-y": 0.0, "ic-z": 0.0,
-        "ic-vx": 0.0, "ic-vy": 0.126232, "ic-vz": 0.0,
+        "ic-x": 0.8234,
+        "ic-y": 0.0,
+        "ic-z": 0.0,
+        "ic-vx": 0.0,
+        "ic-vy": 0.126232,
+        "ic-vz": 0.0,
     }
     state_labels = [
-        ("x", "ic-x"), ("y", "ic-y"), ("z", "ic-z"),
-        ("vx", "ic-vx"), ("vy", "ic-vy"), ("vz", "ic-vz"),
+        ("x", "ic-x"),
+        ("y", "ic-y"),
+        ("z", "ic-z"),
+        ("vx", "ic-vx"),
+        ("vy", "ic-vy"),
+        ("vz", "ic-vz"),
     ]
     elements = []
     row_items = []
     for label, id_ in state_labels:
         row_items.append(
-            dbc.Col([
-                html.Label(label, className="input-label-sm"),
-                dbc.Input(
-                    id=id_, type="number", value=defaults[id_],
-                    className="ic-input", step="any",
-                ),
-            ], width=4)
+            dbc.Col(
+                [
+                    html.Label(label, className="input-label-sm"),
+                    dbc.Input(
+                        id=id_,
+                        type="number",
+                        value=defaults[id_],
+                        className="ic-input",
+                        step="any",
+                    ),
+                ],
+                width=4,
+            )
         )
         if len(row_items) == 3:
             elements.append(dbc.Row(row_items, className="g-1 mb-1"))
