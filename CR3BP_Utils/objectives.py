@@ -1,8 +1,6 @@
 """
 objectives.py
 
-
-
 Common CR3BP Objective Functions to be used with ASSET's PSIOPT optimizer
 
 Functions
@@ -16,9 +14,10 @@ Classes
 massObjLt  : Low-Thrust Mass Optimal Objective
 powerObjLt : Low-Thrust Power Optimal Objective
 """
+
+import asset_asrl.OptimalControl as oc
 import asset_asrl.VectorFunctions as vf
 from asset_asrl.VectorFunctions import Arguments as Args
-import asset_asrl.OptimalControl as oc
 
 
 def dvObjTable(table):
@@ -34,13 +33,13 @@ def dvObjTable(table):
     -------
     obj : asset_asrl.VectorFunction
         Objective Function
-        
+
     """
-    Vt =  Args(4)
+    Vt = Args(4)
     V = Vt.head(3)
     t = Vt[3]
 
-    func = oc.InterpFunction(table, range(3,6)).vf()
+    func = oc.InterpFunction(table, range(3, 6)).vf()
 
     obj = (V - func(t)).squared_norm()
 
@@ -84,72 +83,47 @@ def fwdLinkDvObj():
         Objective Function
 
     """
-    v1, v2 = Args(6).tolist([(0,3),(3,3)])
-    obj = (v2-v1).squared_norm()
+    v1, v2 = Args(6).tolist([(0, 3), (3, 3)])
+    obj = (v2 - v1).squared_norm()
     return obj
 
 
 class massObjLt(vf.ScalarFunction):
-    
+    """
+    Low-Thrust Mass Optimal Objective Function
+
+    Parameters
+    ----------
+    scale : float
+        Scale of control vector norm
+    """
+
     def __init__(self, scale):
-        """
-        Low-Thrust Mass Optimal Objective Function
-
-        Parameters
-        ----------
-        scale : float
-            Scale of control vector norm
-        
-        Returns
-        -------
-        asset_asrl.VectorFunctions.ScalarFunction
-
-        """
-
         u = Args(3)
         super().__init__(u.norm() * scale)
 
 
 class powerObjLt(vf.ScalarFunction):
-    
+    """
+    Low-Thrust Power Optimal Objective Function
+
+    Parameters
+    ----------
+    scale : float
+        Scale of control vector norm squared
+    """
+
     def __init__(self, scale):
-        """
-        Low-Thrust Power Optimal Objective Function
-
-        Parameters
-        ----------
-        scale : float
-            Scale of control vector norm squared
-        
-        Returns
-        -------
-        asset_asrl.VectorFunctions.ScalarFunction
-
-        """
-
         u = Args(3)
         super().__init__(u.norm().squared() * scale)
 
 
 class momentumIntegralObj(vf.ScalarFunction):
+    """Momentum Integral Objective Function (r . v for a 6-element [r, v] input)."""
 
-        def __init__(self):
-            """
-            Momentum Integral Objective Function
+    def __init__(self):
+        RV = Args(6)
 
-            Parameters
-            ----------
-            None
+        x, y, z, vx, vy, vz = RV.tolist()
 
-            Returns
-            -------
-            asset_asrl.VectorFunctions.ScalarFunction
-        
-            """
-             
-            RV = Args(6)
-
-            x,y,z,vx,vy,vz = RV.tolist()
-
-            super().__init__(x*vx + y*vy + z*vz)
-        
+        super().__init__(x * vx + y * vy + z * vz)

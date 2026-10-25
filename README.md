@@ -14,9 +14,7 @@ Astro Tools provides a comprehensive suite of numerical methods and models for:
 - **Optimal control problems** (low-thrust trajectory optimization)
 - **Multi-body dynamics** (CR3BP extensions including solar perturbations)
 
-This library offers a **dual-language implementation**:
-- **Python** (primary): Full-featured implementation with integration to the ASSET optimal control library
-- **Julia** (secondary): Standalone module (`Astro.jl`) for high-performance differential equation solving
+The library is written in Python and integrates with the ASSET optimal control library.
 
 ## Key Features
 
@@ -76,9 +74,7 @@ print(f"L1 position: {L_points[0]}")
 print(f"L2 position: {L_points[1]}")
 ```
 
-For complete working examples, see:
-- `examples/Solve_NRHOs_CR3BP.py` - Solves 9:2 and 4:1 L2 Southern Near Rectilinear Halo Orbits
-- `examples/Solve_NRHOs_CR3BP.jl` - Julia implementation of NRHO solver
+For a complete working example, see `examples/Solve_NRHOs_CR3BP.py`, which solves the 9:2 and 4:1 L2 Southern Near Rectilinear Halo Orbits.
 
 ## Project Structure
 
@@ -90,7 +86,8 @@ general_utils.py      # Unit conversions, constants (EARTH_MOON_CR3BP_*), KDTree
 plot_utils.py         # Plotly-based 3D trajectory/Poincare plotting
 asset_utils.py        # ASSET optimal control solver wrappers (Jet parallel jobs)
 data_utils.py         # Pickle serialization (writeDataToPkl / readDataFromPkl)
-Astro.jl              # Julia port of astro.py (standalone module, uses DifferentialEquations.jl)
+pyproject.toml        # Package metadata (packaging is in progress)
+ruff.toml             # Ruff lint and format configuration
 
 Models/
   CR3BP.py            # ASSET-format CR3BP ODE (CR3BPFrame, CR3BP classes)
@@ -110,7 +107,7 @@ CR3BP_Utils/
   control_laws.py     # VNB-frame thrust direction control laws
   ftle.py             # Finite-Time Lyapunov Exponent computation
 
-examples/             # Example scripts (Python + Julia NRHO solvers)
+examples/             # Example scripts (NRHO solver)
 data/                 # Pickle orbit files, periodicLagrangeOrbits.csv
 ```
 
@@ -129,24 +126,26 @@ data/                 # Pickle orbit files, periodicLagrangeOrbits.csv
 **Optimal control (required for Models/ and CR3BP_Utils/):**
 - asset_asrl
 
+**Examples only:**
+- prettytable
+
 **Note:** The module `astro.py` does NOT depend on ASSET and uses scipy directly for integration and root-finding.
-
-### Julia Dependencies (for Astro.jl)
-
-- LinearAlgebra
-- StaticArrays
-- DifferentialEquations
-- Roots
-- CSV
-- DataFrames
-- Plots
 
 ### Installation Notes
 
-- **No package manager or virtual environment is currently configured**
-- Scripts are run directly: `python examples/Solve_NRHOs_CR3BP.py`
+- The project is being converted into an installable package. `pyproject.toml` exists but is not complete yet: it lists only `asset_asrl` as a dependency and has no build system, so install the dependencies above yourself for now.
+- Scripts are run directly from the repository root: `python examples/Solve_NRHOs_CR3BP.py`
 - Example scripts use `sys.path.append` to locate the project root
 - Imports reference modules by relative path from project root (e.g., `from Models.CR3BP import CR3BP`)
+
+### Linting and Formatting
+
+Code is linted and formatted with [ruff](https://docs.astral.sh/ruff/), configured in `ruff.toml`:
+
+```bash
+ruff check .
+ruff format .
+```
 
 ## Key Technical Concepts
 
@@ -397,21 +396,11 @@ where σmax is the largest singular value of the flow map Φ.
 - **ASSET alias convention** (top of files in Models/ and CR3BP_Utils/):
   ```python
   import asset_asrl as ast
+
   vf = ast.VectorFunctions
   oc = ast.OptimalControl
   Args = vf.Arguments
   ```
-
-### Julia Naming Conventions
-
-- **Types**: `CamelCase`
-  - Examples: `CelestialObject`, `BodyData`
-
-- **Functions**: `snake_case`
-  - Examples: `characteristic_quantities()`, `solve_halo()`, `lagrange_points()`
-
-- **In-place functions**: `snake_case!` (with exclamation mark)
-  - Examples: `cr3bp_ode!()`, `cr3bp_ode_stm!()`
 
 ### Docstring Style
 
@@ -421,31 +410,36 @@ where σmax is the largest singular value of the flow map Φ.
 
 **Example:**
 ```python
-def solveHalo(x0, T, mu, tol=1e-12, max_iter=100):
+def solveHalo(ndx, t, mu=0.0121, direction=-1, max_iter=50):
     """
-    Solve for a periodic Halo orbit using differential correction.
+    Solve for a halo orbit using a differential corrector.
 
     Parameters
     ----------
-    x0 : array_like, shape (6,)
-        Initial guess for state vector [x, y, z, vx, vy, vz]
-    T : float
-        Initial guess for orbital period (non-dimensional time)
-    mu : float
-        CR3BP mass ratio
-    tol : float, optional
-        Convergence tolerance (default: 1e-12)
+    ndx : np.ndarray, shape (42,)
+        Initial guess: non-dimensional state [x, y, z, vx, vy, vz] followed by the
+        flattened 6x6 identity STM.
+    t : float
+        Initial guess for the half-period (time to the next x-z plane crossing).
+    mu : float, optional
+        CR3BP mass ratio (default is 0.0121).
+    direction : int, optional
+        Direction of the x-z plane crossing event passed to solve_ivp (default is -1).
     max_iter : int, optional
-        Maximum number of iterations (default: 100)
+        Maximum number of corrector iterations (default is 50).
 
     Returns
     -------
-    x0_corrected : ndarray, shape (6,)
-        Corrected initial state for periodic orbit
-    T_corrected : float
-        Corrected orbital period
-    converged : bool
-        True if differential correction converged
+    traj : np.ndarray, shape (42, n)
+        States and STMs along one full period of the corrected orbit.
+    period : float
+        Period of the corrected orbit.
+
+    Raises
+    ------
+    RuntimeError
+        If the crossing event fires at the initial state (direction has the same sign as the initial y-velocity),
+        or the corrector diverges (non-finite constraint norm) or does not converge within max_iter iterations.
     """
 ```
 
@@ -455,30 +449,20 @@ This library includes working example scripts that demonstrate key capabilities:
 
 ### Solving Near Rectilinear Halo Orbits (NRHOs)
 
-**Python:** `examples/Solve_NRHOs_CR3BP.py`
-
-Solves two Earth-Moon NRHOs (9:2 and 4:1 L2 Southern) using ASSET-based periodic orbit solver. Initial conditions are taken from Dr. Emily Zimovan-Spreen's PhD dissertation. The script:
+`examples/Solve_NRHOs_CR3BP.py` solves two Earth-Moon NRHOs (9:2 and 4:1 L2 Southern) using ASSET-based periodic orbit solver. Initial conditions are taken from Dr. Emily Zimovan-Spreen's PhD dissertation. The script:
 1. Defines the Earth-Moon CR3BP system
 2. Sets up initial guesses from literature
 3. Applies differential correction with ASSET optimizer
 4. Validates results against published Jacobi constant and period values
 5. Saves converged trajectories to pickle files
 
-**Julia:** `examples/Solve_NRHOs_CR3BP.jl`
-
-Julia implementation of the same NRHO solver, demonstrating the `Astro.jl` standalone module.
-
 ### Running Examples
 
 ```bash
-# Python version
 python examples/Solve_NRHOs_CR3BP.py
-
-# Julia version
-julia examples/Solve_NRHOs_CR3BP.jl
 ```
 
-**Note:** Python examples use `sys.path.append(str(pathlib.Path(__file__).parents[1].absolute()))` to locate the project root, so they can be run from any directory.
+**Note:** Examples use `sys.path.append(str(pathlib.Path(__file__).parents[1].absolute()))` to locate the project root, so imports resolve from any directory. However, the NRHO example writes its output to `./data/Orbits/` relative to the current working directory, so run it from the repository root.
 
 ### Computed Data
 
@@ -488,13 +472,7 @@ The `data/` directory contains:
 
 ## Additional Documentation
 
-For comprehensive developer documentation, see **`CLAUDE.md`**, which includes:
-- **Detailed common patterns**: Step-by-step recipes for typical tasks
-- **ASSET ODE class design patterns**: How to create new dynamical models
-- **Complete function and class listings**: Full API reference for each module
-- **Integration instructions for coding agents**: Guidelines for AI assistants working with this codebase
-
-The `CLAUDE.md` file serves as the detailed technical reference, while this README provides an accessible entry point for new users.
+Guidance for AI coding agents lives in **`.claude/CLAUDE.md`** (Claude Code) and **`.github/copilot-instructions.md`** (GitHub Copilot). These cover the repository's architecture, state-vector conventions, and lint commands. For per-module function and class listings, see the module-level docstring at the top of each file.
 
 ## Disclaimer
 

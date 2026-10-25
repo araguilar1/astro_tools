@@ -1,0 +1,40 @@
+line-length = 120
+
+exclude = [
+    ".vscode/",
+    "venv/",
+    "env/",
+    ".venv/",
+    ".env/",
+    "__pycache__/",
+    ".git"
+]
+
+[lint]
+select = [
+    "A",
+    "D",
+    "F",
+    "E",
+    "I",
+    "SIM"
+]
+
+ignore = [
+    "D100", 
+    "D104",
+    "D202",
+    "D205",
+    "D400"
+]
+
+[lint.pydocstyle]
+convention = "numpy"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+

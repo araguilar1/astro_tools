@@ -2,7 +2,7 @@
 
 ## Overview
 
-Astrodynamics library for the Circular Restricted Three-Body Problem (CR3BP) and related orbital mechanics models. Author: Abram Aguilar (NASA JSC).
+Astrodynamics library for the Circular Restricted Three-Body Problem (CR3BP) and related orbital mechanics models. Author: Abram Aguilar.
 
 ## Project structure
 
@@ -14,7 +14,8 @@ general_utils.py      # Unit conversions, constants (EARTH_MOON_CR3BP_*), KDTree
 plot_utils.py         # Plotly-based 3D trajectory/Poincare plotting
 asset_utils.py        # ASSET optimal control solver wrappers (Jet parallel jobs)
 data_utils.py         # Pickle serialization (writeDataToPkl / readDataFromPkl)
-Astro.jl              # Julia port of astro.py (standalone module, uses DifferentialEquations.jl)
+pyproject.toml        # Package metadata (packaging is in progress)
+ruff.toml             # Ruff lint and format configuration
 
 Models/
   CR3BP.py            # ASSET-format CR3BP ODE (CR3BPFrame, CR3BP classes)
@@ -34,42 +35,42 @@ CR3BP_Utils/
   control_laws.py     # VNB-frame thrust direction control laws
   ftle.py             # Finite-Time Lyapunov Exponent computation
 
-examples/             # Example scripts (Python + Julia NRHO solvers)
+examples/             # Example scripts (NRHO solver)
 data/                 # Pickle orbit files, periodicLagrangeOrbits.csv
 ```
 
-## Languages and dependencies
+## Dependencies
 
-**Python** (primary): numpy, scipy, pandas, matplotlib, plotly, requests, asset_asrl. No package manager or virtual environment configured.
+Python: numpy, scipy, pandas, matplotlib, plotly, requests, asset_asrl. The example scripts also use prettytable.
 
-**Julia** (secondary): `Astro.jl` is a standalone module. Dependencies: LinearAlgebra, StaticArrays, DifferentialEquations, Roots, CSV, DataFrames, Plots.
+The project is being converted into an installable package. `pyproject.toml` exists but currently lists only `asset_asrl` and has no `[build-system]` table, so dependencies are installed manually for now.
 
 The `asset_asrl` package is required by all files in `Models/`, `CR3BP_Utils/`, `asset_utils.py`, and parts of `general_utils.py`. The core `astro.py` does NOT depend on ASSET (uses scipy directly).
 
 ## Running code
 
-No test suite, linter, or CI/CD exists. Scripts are run directly:
+There is no test suite or CI/CD. Lint and format with ruff (configured in `ruff.toml`: line length 120, rule sets `A, D, F, E, I, SIM`, numpy docstring convention):
+
+```bash
+ruff check .
+ruff format .
+```
+
+Scripts are run directly from the repository root (the NRHO example writes to `./data/Orbits/` relative to the working directory):
 
 ```bash
 python examples/Solve_NRHOs_CR3BP.py
-julia examples/Solve_NRHOs_CR3BP.jl
 ```
 
-Example scripts use `sys.path.append` to find the project root. Imports reference modules by relative path from project root (e.g., `from Models.CR3BP import CR3BP`).
+Example scripts use `sys.path.append` to find the project root. Imports reference modules by relative path from project root (e.g., `from Models.CR3BP import CR3BP`). Exception: `CR3BP_Utils/manifolds.py` uses a parent-relative import (`from ..general_utils import M_TO_KM`), which only resolves when the repo root is imported as a package.
 
 ## Naming conventions
 
-Python:
 - Classes: `UpperCamelCase` (CelestialObject, CR3BPFrame, Jpl3BodyData)
 - Class methods: `lower_case_with_underscores` (equatorial_radius, orbit_semi_major_axis)
 - Standalone functions: `camelCase` (characteristicQuantities, lagrangePoints, solveHalo)
 - Module-level constants: `UPPER_SNAKE_CASE` (EARTH_MOON_CR3BP_MU, M_TO_KM)
 - ASSET alias convention at top of files: `vf = ast.VectorFunctions`, `oc = ast.OptimalControl`, `Args = vf.Arguments`
-
-Julia:
-- Types: `CamelCase` (CelestialObject, BodyData)
-- Functions: `snake_case` (characteristic_quantities, solve_halo)
-- In-place functions: `snake_case!` (cr3bp_ode!, cr3bp_ode_stm!)
 
 ## Key domain concepts
 
@@ -82,7 +83,7 @@ All dynamics use **non-dimensional** coordinates. The CR3BP state vector is `[x,
 - **P1**: primary body at [-mu, 0, 0]; **P2**: secondary body at [1-mu, 0, 0]
 - **L1-L5**: Lagrange equilibrium points computed by each Frame class
 - **STM**: 6x6 State Transition Matrix; when appended to state gives a 42-element vector
-- **Jacobi constant**: energy-like integral of motion; computed by `jacobi()` / `jacobi_constant()`
+- **Jacobi constant**: energy-like integral of motion; computed by `jacobi()` in `astro.py`
 - **Sundman Transform (ST)**: time regularization that scales integration variable by distance to P2
 
 ## Docstring style

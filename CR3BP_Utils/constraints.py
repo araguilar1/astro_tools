@@ -1,8 +1,6 @@
 """
 constraints.py
 
-
-
 Common CR3BP Inequality/Equality Constraints to be used with ASSET's PSIOPT optimizer
 
 Functions
@@ -14,9 +12,11 @@ p2DistCon     : P2 distance Inequality Constraint
 p1DistCon     : P1 distance Inequality Constraint
 
 """
-from asset_asrl.VectorFunctions import Arguments as Args
+
 import asset_asrl.OptimalControl as oc
-import numpy as np 
+import numpy as np
+from asset_asrl.VectorFunctions import Arguments as Args
+
 
 def posConTable(table):
     """
@@ -34,10 +34,10 @@ def posConTable(table):
     """
 
     Rt = Args(4)
-    R  = Rt.head(3)
-    t  = Rt[3]
+    R = Rt.head(3)
+    t = Rt[3]
 
-    func = oc.InterpFunction(table, range(0,3)).vf()
+    func = oc.InterpFunction(table, range(0, 3)).vf()
 
     con = R - func(t)
 
@@ -84,7 +84,7 @@ def rendConTable(table):
     X = Xt.head(6)
     t = Xt[6]
 
-    func = oc.InterpFunction(table, range(0,6))
+    func = oc.InterpFunction(table, range(0, 6))
 
     con = X - func(t)
 
@@ -94,7 +94,7 @@ def rendConTable(table):
 def p2DistCon(ode, nd_dist):
     """
     Inequality Constraint that enforces state must maintain certain distance from P2
-    
+
     Parameters
     ----------
     ode : asset_asrl.OptimalControl.ODEBase
@@ -107,7 +107,7 @@ def p2DistCon(ode, nd_dist):
     con : assset_asrl.VectorFunction
         Inequlity Constraint
     """
-    p2_loc = np.array([1-ode.mu,0.0,0.0])
+    p2_loc = np.array([1 - ode.mu, 0.0, 0.0])
     R = Args(3)
 
     con = nd_dist - (R - p2_loc).norm()
@@ -118,7 +118,7 @@ def p2DistCon(ode, nd_dist):
 def p1DistCon(ode, nd_dist):
     """
     Inequality Constraint that enforces state must maintain certain distance from P1
-    
+
     Parameters
     ----------
     ode : asset_asrl.OptimalControl.ODEBase
@@ -131,7 +131,7 @@ def p1DistCon(ode, nd_dist):
     con : assset_asrl.VectorFunction
         Inequlity Constraint
     """
-    p1_loc = np.array([-ode.mu,0.0,0.0])
+    p1_loc = np.array([-ode.mu, 0.0, 0.0])
     R = Args(3)
 
     con = nd_dist - (R - p1_loc).norm()

@@ -1,8 +1,6 @@
 """
 stm.py
 
-
-
 Tools to handle CR3BP STM
 
 Functions
@@ -14,7 +12,9 @@ computeStabilityIndex             : Compute Stability Index
 computeStableUnstableEigenvectors : Compute Stable/Unstable Eigenvectors
 
 """
-import numpy as np 
+
+import numpy as np
+
 
 def computeStm(ode, x0, tf):
     """
@@ -33,17 +33,18 @@ def computeStm(ode, x0, tf):
     -------
     stm : np.array
         State Transition Matrix
-        
-    """
-    integrator = ode.integrator('DOPRI87',1e-4)
 
-    _, jac = integrator.integrate_stm(x0,tf)
+    """
+    integrator = ode.integrator("DOPRI87", 1e-4)
+
+    _, jac = integrator.integrate_stm(x0, tf)
 
     stm = jac[0:6, 0:6]
 
     return stm
 
-def computeStmParallel(ode, x0s, tfs, nthreads:int=8):
+
+def computeStmParallel(ode, x0s, tfs, nthreads: int = 8):
     """
     Compute Multiple State Transition Matrices in Parallel
 
@@ -57,35 +58,35 @@ def computeStmParallel(ode, x0s, tfs, nthreads:int=8):
         Final integration times
     nthreads : int
         Number of threads to use in parallel inegration
-        
+
     Returns
     -------
     stms : np.array
         State Transition Matrix
 
     """
-    integrator = ode.integrator('DOPRI87',1e-4)
+    integrator = ode.integrator("DOPRI87", 1e-4)
 
-    results = integrator.integrate_stm_parallel(x0s,tfs,nthreads)
+    results = integrator.integrate_stm_parallel(x0s, tfs, nthreads)
 
     stms = []
 
     for _, jac in results:
-
         stm = jac[0:6, 0:6]
         stms.append(stm)
 
     return stms
 
+
 def computeStmSvd(stm):
     """
     Compute STM Singular Value Decomposition
-    
+
     Parameters
     ----------
     stm : np.array
         State Transition Matrix
-    
+
     Returns
     -------
     u,s,v : tuple
@@ -93,9 +94,10 @@ def computeStmSvd(stm):
 
     """
 
-    u,s,v = np.linalg.svd(stm)
+    u, s, v = np.linalg.svd(stm)
 
-    return u,s,v
+    return u, s, v
+
 
 def computeCauchyGreenTensor(stm):
     """
@@ -117,6 +119,7 @@ def computeCauchyGreenTensor(stm):
 
     return cgt
 
+
 def computeStabilityIndex(stm):
     """
     Compute a Periodic Orbit Stability Index
@@ -135,9 +138,10 @@ def computeStabilityIndex(stm):
 
     eig_val, _ = np.linalg.eig(stm)
 
-    stab_idx = (1.0/2.0) * (np.max(np.abs(eig_val)) + 1.0/np.max(np.abs(eig_val)))
+    stab_idx = (1.0 / 2.0) * (np.max(np.abs(eig_val)) + 1.0 / np.max(np.abs(eig_val)))
 
     return stab_idx
+
 
 def computeStableUnstableEigenvectors(stm):
     """
@@ -159,11 +163,11 @@ def computeStableUnstableEigenvectors(stm):
 
     eig_vec = eig_vec.T
 
-    idxs = list(range(0,6))
+    idxs = list(range(0, 6))
 
     idxs.sort(key=lambda x: np.abs(eig_val[x]))
 
-    stable_vec   = np.real(eig_vec[idxs[0]])
+    stable_vec = np.real(eig_vec[idxs[0]])
     unstable_vec = np.real(eig_vec[idxs[-1]])
 
-    return stable_vec, unstable_vec 
+    return stable_vec, unstable_vec
