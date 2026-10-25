@@ -65,10 +65,7 @@ def getManifoldsDrDv(
     for i, stm in enumerate(stms):
         stable_vec, unstable_vec = computeStableUnstableEigenvectors(stm)
 
-        if stable:
-            vec = stable_vec
-        else:
-            vec = unstable_vec
+        vec = stable_vec if stable else unstable_vec
 
         x_plus = np.copy(orbit[i])
         x_plus[-1] = 0.0
@@ -149,10 +146,7 @@ def getManifoldsDr(
     for i, stm in enumerate(stms):
         stable_vec, unstable_vec = computeStableUnstableEigenvectors(stm)
 
-        if stable:
-            vec = stable_vec
-        else:
-            vec = unstable_vec
+        vec = stable_vec if stable else unstable_vec
 
         x_plus = np.copy(orbit[i])
         x_plus[-1] = 0.0
@@ -232,10 +226,7 @@ def getManifoldInitialConditionsDrDv(
     for i, stm in enumerate(stms):
         stable_vec, unstable_vec = computeStableUnstableEigenvectors(stm)
 
-        if stable:
-            vec = stable_vec
-        else:
-            vec = unstable_vec
+        vec = stable_vec if stable else unstable_vec
 
         x_plus = np.copy(orbit[i])
         x_plus[-1] = 0.0
@@ -300,10 +291,7 @@ def getManifoldInitialConditionsDr(
     for i, stm in enumerate(stms):
         stable_vec, unstable_vec = computeStableUnstableEigenvectors(stm)
 
-        if stable:
-            vec = stable_vec
-        else:
-            vec = unstable_vec
+        vec = stable_vec if stable else unstable_vec
 
         x_plus = np.copy(orbit[i])
         x_plus[-1] = 0.0

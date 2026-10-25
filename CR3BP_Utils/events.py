@@ -103,10 +103,7 @@ def p2CullEvent(ode, st_flag=False, alt=0.01, nd_dist=0.15):
         Distance and altitude of P3 (spacecraft) from P2
     """
 
-    if not st_flag:
-        X = Args(7)
-    else:
-        X = Args(8)
+    X = Args(7) if not st_flag else Args(8)
 
     altitude = (X.head3() - ode.P2).norm() - alt
     y = (X[1] - nd_dist) * (X[1] + nd_dist)
