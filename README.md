@@ -472,7 +472,7 @@ The `data/` directory contains:
 
 ## Additional Documentation
 
-Guidance for AI coding agents lives in **`CLAUDE.md`** (Claude Code) and **`.github/copilot-instructions.md`** (GitHub Copilot). These cover the repository's architecture, state-vector conventions, and lint commands. For per-module function and class listings, see the module-level docstring at the top of each file.
+Guidance for AI coding agents lives in **`.claude/CLAUDE.md`** (Claude Code) and **`.github/copilot-instructions.md`** (GitHub Copilot). These cover the repository's architecture, state-vector conventions, and lint commands. For per-module function and class listings, see the module-level docstring at the top of each file.
 
 ## Disclaimer
 
