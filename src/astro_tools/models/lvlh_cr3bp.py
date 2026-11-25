@@ -1,5 +1,5 @@
 """
-LVLH_CR3BP.py
+lvlh_cr3bp.py
 
 Implementation of the Local Vertical Local Horizontal (LVLH) Model in the Circular Restricted Three-Body Problem (CR3BP)
 in ASSET format. This frame is leveraged to study relative motion of a chaser/loiterer spacecraft about a chief/target

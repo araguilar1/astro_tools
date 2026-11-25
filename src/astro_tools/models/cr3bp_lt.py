@@ -1,5 +1,5 @@
 """
-CR3BP_LT.py
+cr3bp_lt.py
 
 Generic Low-Thrust ODEs
 

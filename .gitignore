@@ -15,3 +15,9 @@ env/
 
 # Claude Code personal settings (keep .claude/CLAUDE.md tracked)
 .claude/settings.local.json
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.ruff_cache/

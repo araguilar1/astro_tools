@@ -15,7 +15,7 @@ Functions have the following naming convention:
 12/29/2019: Creation
 """
 
-from pathlib import Path
+from importlib.resources import files
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -496,10 +496,10 @@ def periodicOrbitDf():
     """
     Return a dataframe of periodic Lagrange Orbit information created by Dan Grebow.
         No input is required.
-        Reads data/Periodic Orbit Data/periodicLagrangeOrbits.csv relative to this file.
+        Reads the packaged data file astro_tools/data/periodicLagrangeOrbits.csv.
     """
-    data = Path(__file__).parent / "data" / "Periodic Orbit Data" / "periodicLagrangeOrbits.csv"
-    df = pd.read_csv(data)
+    with (files("astro_tools") / "data" / "periodicLagrangeOrbits.csv").open("r") as f:
+        df = pd.read_csv(f)
     return df
 
 

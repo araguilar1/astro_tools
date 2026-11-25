@@ -1,5 +1,5 @@
 """
-data_utils.py
+pickle_io.py
 
 Functions
 --------
@@ -17,8 +17,8 @@ def writeDataToPkl(data, filepath):
     ----------
     data : any
         data to write
-    filepath : str
-        fully qualified file path
+    filepath : str or pathlib.Path
+        file path to write to
 
     Returns
     -------
@@ -35,8 +35,8 @@ def readDataFromPkl(filepath):
     """
     Parameters
     ----------
-    filepath : str
-        fully qualified file path
+    filepath : str or pathlib.Path
+        file path to read from
 
     Returns
     -------

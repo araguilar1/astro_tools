@@ -7,19 +7,16 @@ Initial Conditions from pages 245-246 of Dr. Emily Spreen's PhD Disseration:
 TRAJECTORY DESIGN AND TARGETING FOR APPLICATIONS TO THE EXPLORATION PROGRAM IN CISLUNAR SPACE
 """
 
-import pathlib
-import sys
-
-sys.path.append(str(pathlib.Path(__file__).parents[1].absolute()))
+from pathlib import Path
 
 import numpy as np
 from prettytable import PrettyTable
 
-from astro import CelestialObject, characteristicQuantities, jacobi
-from CR3BP_Utils.solve_periodic_orbit import solvePeriodic
-from data_utils import writeDataToPkl
-from general_utils import EARTH_MOON_CR3BP_DAY
-from Models.CR3BP import CR3BP
+from astro_tools.astro import CelestialObject, characteristicQuantities, jacobi
+from astro_tools.cr3bp_utils.solve_periodic_orbit import solvePeriodic
+from astro_tools.models.cr3bp import CR3BP
+from astro_tools.utils.general import EARTH_MOON_CR3BP_DAY
+from astro_tools.utils.pickle_io import writeDataToPkl
 
 ########### Define CR3BP ODE ###########
 earth = CelestialObject("Earth")
@@ -69,8 +66,8 @@ table.add_row(["4:1 L2 Southern NRHO", traj_41_jc, 3.03476, traj_41_period_days,
 print(table)
 
 ########### Save Data ###########
-traj_92_path = "./data/Orbits/traj_92_L2s_NRHO_CR3BP.pkl"
-writeDataToPkl(traj_92_L2s_NRHO, traj_92_path)
+output_dir = Path(__file__).parent / "data" / "Orbits"
+output_dir.mkdir(parents=True, exist_ok=True)
 
-traj_41_path = "./data/Orbits/traj_41_L2s_NRHO_CR3BP.pkl"
-writeDataToPkl(traj_41_L2s_NRHO, traj_41_path)
+writeDataToPkl(traj_92_L2s_NRHO, output_dir / "traj_92_L2s_NRHO_CR3BP.pkl")
+writeDataToPkl(traj_41_L2s_NRHO, output_dir / "traj_41_L2s_NRHO_CR3BP.pkl")

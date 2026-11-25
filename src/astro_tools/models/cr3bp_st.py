@@ -1,5 +1,5 @@
 """
-CR3BP_ST.py
+cr3bp_st.py
 
 Copy of the base ASSET Circular Restricted Three-Body Problem (CR3BP) with a Sundman Transform Implementation.
 

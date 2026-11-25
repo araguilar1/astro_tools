@@ -1,5 +1,5 @@
 """
-EPPR_ST.py
+eppr_st.py
 
 Copy of the base ASSET Ephemeris Pulsating Rotating (EPPR) Frame with a Sundman Transform Implementation.
 

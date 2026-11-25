@@ -48,8 +48,8 @@ The library is written in Python and integrates with the ASSET optimal control l
 ### Creating a CR3BP System
 
 ```python
-from astro import CelestialObject, characteristicQuantities
-from Models.CR3BP import CR3BP
+from astro_tools.astro import CelestialObject, characteristicQuantities
+from astro_tools.models.cr3bp import CR3BP
 
 # Define the two primary bodies
 earth = CelestialObject("Earth")
@@ -65,7 +65,7 @@ ode = CR3BP(cq["mu"], cq["lstar"], cq["tstar"])
 ### Computing Lagrange Points
 
 ```python
-from astro import lagrangePoints
+from astro_tools.astro import lagrangePoints
 
 # Compute all five Lagrange points (L1-L5)
 L_points = lagrangePoints(ode.mu)  # Returns positions in rotating frame
@@ -79,64 +79,74 @@ For a complete working example, see `examples/Solve_NRHOs_CR3BP.py`, which solve
 ## Project Structure
 
 ```
-astro.py              # Core: CelestialObject class, CR3BP ODEs, Lagrange points, Jacobi constant,
-                      #   differential correctors (solveLyapunov, solveHalo), continuation methods
-general_utils.py      # Unit conversions, constants (EARTH_MOON_CR3BP_*), KDTree proximity search,
-                      #   osculating elements, JPL 3-Body API client (Jpl3BodyData)
-plot_utils.py         # Plotly-based 3D trajectory/Poincare plotting
-asset_utils.py        # ASSET optimal control solver wrappers (Jet parallel jobs)
-data_utils.py         # Pickle serialization (writeDataToPkl / readDataFromPkl)
-pyproject.toml        # Package metadata (packaging is in progress)
-ruff.toml             # Ruff lint and format configuration
+pyproject.toml              # Package metadata, dependencies, setuptools config
+ruff.toml                   # Ruff lint and format configuration
 
-Models/
-  CR3BP.py            # ASSET-format CR3BP ODE (CR3BPFrame, CR3BP classes)
-  BCR4BP.py           # Bicircular Restricted 4-Body Problem (Sun perturbation)
-  CR3BP_LT.py         # CR3BP with low-thrust (mass + control variables)
-  CR3BP_ST.py         # CR3BP with Sundman Transform (regularization near P2)
-  EPPR_ST.py          # Ephemeris Pulsating Rotating frame with Sundman Transform
-  LVLH_CR3BP.py       # Local Vertical Local Horizontal frame for RPO
+src/astro_tools/
+  __init__.py               # __version__ (does not import submodules)
+  astro.py                  # scipy-only core: CelestialObject, CR3BP ODEs, Lagrange points, Jacobi constant,
+                            #   differential correctors (solveLyapunov, solveHalo), continuation methods
 
-CR3BP_Utils/
-  stm.py              # State Transition Matrix computation (serial & parallel)
-  manifolds.py        # Stable/unstable manifold computation along periodic orbits
-  events.py           # ASSET integrator event functions (axis crossings, distance triggers)
-  solve_periodic_orbit.py  # Generic periodic orbit solver using ASSET phase optimization
-  constraints.py      # ASSET equality/inequality constraints (position matching, keep-out zones)
-  objectives.py       # ASSET objective functions (delta-V minimization, low-thrust optimal)
-  control_laws.py     # VNB-frame thrust direction control laws
-  ftle.py             # Finite-Time Lyapunov Exponent computation
+  models/                   # ASSET ODE models
+    cr3bp.py                # CR3BP ODE (CR3BPFrame, CR3BP classes)
+    bcr4bp.py               # Bicircular Restricted 4-Body Problem (Sun perturbation)
+    cr3bp_lt.py             # CR3BP with low-thrust (mass + control variables)
+    cr3bp_st.py             # CR3BP with Sundman Transform (regularization near P2)
+    eppr_st.py              # Ephemeris Pulsating Rotating frame with Sundman Transform
+    lvlh_cr3bp.py           # Local Vertical Local Horizontal frame for RPO
 
-examples/             # Example scripts (NRHO solver)
-data/                 # Pickle orbit files, periodicLagrangeOrbits.csv
+  cr3bp_utils/              # ASSET building blocks and computations
+    stm.py                  # State Transition Matrix computation (serial & parallel)
+    manifolds.py            # Stable/unstable manifold computation along periodic orbits
+    events.py               # ASSET integrator event functions (axis crossings, distance triggers)
+    solve_periodic_orbit.py # Generic periodic orbit solver using ASSET phase optimization
+    constraints.py          # ASSET equality/inequality constraints (position matching, keep-out zones)
+    objectives.py           # ASSET objective functions (delta-V minimization, low-thrust optimal)
+    control_laws.py         # VNB-frame thrust direction control laws
+    ftle.py                 # Finite-Time Lyapunov Exponent computation
+
+  utils/
+    general.py              # Unit conversions, constants (EARTH_MOON_CR3BP_*), KDTree proximity search,
+                            #   osculating elements, JPL 3-Body API client (Jpl3BodyData)
+    plotting.py             # Plotly-based 3D trajectory/Poincare plotting
+    pickle_io.py            # Pickle serialization (writeDataToPkl / readDataFromPkl)
+    asset.py                # ASSET optimal control solver wrappers (Jet parallel jobs)
+
+  data/
+    periodicLagrangeOrbits.csv  # Packaged periodic orbit table (read by astro.periodicOrbitDf)
+
+examples/
+  Solve_NRHOs_CR3BP.py      # NRHO solver example
+  data/Orbits/              # Pickle output from the example
 ```
+
+Import paths mirror this layout, for example `from astro_tools.cr3bp_utils.stm import computeStm` or
+`from astro_tools.utils.general import EARTH_MOON_CR3BP_DAY`.
 
 ## Installation and Dependencies
 
+### Installing
+
+Install the package into any conda or virtual environment with pip. Activate the environment, then run from the
+repository root:
+
+```bash
+pip install -e .                    # editable install: source edits take effect without reinstalling
+pip install -e ".[examples,dev]"    # also install prettytable (examples) and ruff (dev)
+```
+
+Drop `-e` for a regular (non-editable) install. Once installed, `import astro_tools` works from any directory.
+
 ### Python Dependencies
 
-**Core scientific computing:**
-- numpy
-- scipy
-- pandas
-- matplotlib
-- plotly
-- requests
+pip installs these automatically from `pyproject.toml`:
 
-**Optimal control (required for Models/ and CR3BP_Utils/):**
-- asset_asrl
+- **Core scientific computing:** numpy, scipy, pandas, matplotlib, plotly, requests
+- **Optimal control (required for `models/`, `cr3bp_utils/`, `utils/general.py`, `utils/asset.py`):** asset_asrl
+- **Optional extras:** `examples` (prettytable), `dev` (ruff)
 
-**Examples only:**
-- prettytable
-
-**Note:** The module `astro.py` does NOT depend on ASSET and uses scipy directly for integration and root-finding.
-
-### Installation Notes
-
-- The project is being converted into an installable package. `pyproject.toml` exists but is not complete yet: it lists only `asset_asrl` as a dependency and has no build system, so install the dependencies above yourself for now.
-- Scripts are run directly from the repository root: `python examples/Solve_NRHOs_CR3BP.py`
-- Example scripts use `sys.path.append` to locate the project root
-- Imports reference modules by relative path from project root (e.g., `from Models.CR3BP import CR3BP`)
+**Note:** The module `astro_tools.astro` does NOT depend on ASSET and uses scipy directly for integration and
+root-finding.
 
 ### Linting and Formatting
 
@@ -291,9 +301,9 @@ where:
 6. Repeat until convergence (|f(x₀)| < tolerance)
 
 **Implementations in this library:**
-- `solveLyapunov(x0, T, mu)` in `astro.py`: Scipy-based solver for planar Lyapunov orbits
-- `solveHalo(x0, T, mu)` in `astro.py`: Scipy-based solver for 3D Halo orbits
-- `solvePeriodic(x0, T, ode, fix_init)` in `CR3BP_Utils/solve_periodic_orbit.py`: ASSET-based general periodic orbit solver with flexible constraints
+- `solveLyapunov(x0, T, mu)` in `src/astro_tools/astro.py`: Scipy-based solver for planar Lyapunov orbits
+- `solveHalo(x0, T, mu)` in `src/astro_tools/astro.py`: Scipy-based solver for 3D Halo orbits
+- `solvePeriodic(x0, T, ode, fix_init)` in `src/astro_tools/cr3bp_utils/solve_periodic_orbit.py`: ASSET-based general periodic orbit solver with flexible constraints
 
 **Advantages:**
 - Extremely fast convergence (quadratic near solution)
@@ -321,7 +331,7 @@ where r is the distance to P2.
 - **Disadvantage**: Equations become more complex; additional state variable needed
 - **Use case**: Essential for low-altitude lunar orbits or trajectories with close lunar flybys
 
-**Implementation:** See `Models/CR3BP_ST.py` for the CR3BP formulation with Sundman Transform.
+**Implementation:** See `src/astro_tools/models/cr3bp_st.py` for the CR3BP formulation with Sundman Transform.
 
 ### Manifolds
 
@@ -345,7 +355,7 @@ where r is the distance to P2.
 - **Mission design**: Gateway station transfers, ballistic lunar transfers, asteroid tour missions
 - **Chaos and transport**: Understanding how trajectories move between different regions of phase space
 
-**Implementation:** See `CR3BP_Utils/manifolds.py` for manifold computation along periodic orbits.
+**Implementation:** See `src/astro_tools/cr3bp_utils/manifolds.py` for manifold computation along periodic orbits.
 
 ### Finite-Time Lyapunov Exponent (FTLE)
 
@@ -375,7 +385,7 @@ where σmax is the largest singular value of the flow map Φ.
 4. Apply FTLE formula
 5. Visualize as a scalar field (color map or contour plot)
 
-**Implementation:** See `CR3BP_Utils/ftle.py` for FTLE computation utilities.
+**Implementation:** See `src/astro_tools/cr3bp_utils/ftle.py` for FTLE computation utilities.
 
 ## Code Organization and Conventions
 
@@ -393,7 +403,7 @@ where σmax is the largest singular value of the flow map Φ.
 - **Module-level constants**: `UPPER_SNAKE_CASE`
   - Examples: `EARTH_MOON_CR3BP_MU`, `M_TO_KM`, `EARTH_MOON_CR3BP_DAY`
 
-- **ASSET alias convention** (top of files in Models/ and CR3BP_Utils/):
+- **ASSET alias convention** (top of files in `models/` and `cr3bp_utils/`):
   ```python
   import asset_asrl as ast
 
@@ -459,16 +469,18 @@ This library includes working example scripts that demonstrate key capabilities:
 ### Running Examples
 
 ```bash
+pip install -e ".[examples]"
 python examples/Solve_NRHOs_CR3BP.py
 ```
 
-**Note:** Examples use `sys.path.append(str(pathlib.Path(__file__).parents[1].absolute()))` to locate the project root, so imports resolve from any directory. However, the NRHO example writes its output to `./data/Orbits/` relative to the current working directory, so run it from the repository root.
+Examples import the installed `astro_tools` package, so they can be run from any directory. The NRHO example writes
+its output to `examples/data/Orbits/`, next to the script.
 
-### Computed Data
+### Data
 
-The `data/` directory contains:
-- **Pickle files** (`.pkl`): Saved trajectory data from example scripts
-- **`periodicLagrangeOrbits.csv`**: Tabulated periodic orbit families with initial conditions and properties
+- **`src/astro_tools/data/periodicLagrangeOrbits.csv`**: Tabulated periodic orbit families with initial conditions and
+  properties. It ships with the package; load it with `astro_tools.astro.periodicOrbitDf()`.
+- **`examples/data/Orbits/*.pkl`**: Saved trajectory data from the example scripts.
 
 ## Additional Documentation
 

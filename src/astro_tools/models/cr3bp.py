@@ -1,12 +1,12 @@
 """
-CR3BP.py
+cr3bp.py
 
 Copy of the base ASSET Circular Restricted Three-Body Problem (CR3BP), but allows users to specify mu, l*, and t*
 
 Classes
 -------
-    CR3BP_FRAME : Generic Frame Implementation in ASSET format
-    CR3BP       : Generic ODE implementation of the CR3BP_FRAME in ASSET format
+    CR3BPFrame : Generic Frame Implementation in ASSET format
+    CR3BP      : Generic ODE implementation of the CR3BPFrame in ASSET format
 """
 
 import asset_asrl as ast

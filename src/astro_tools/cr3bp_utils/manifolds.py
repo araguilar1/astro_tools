@@ -14,7 +14,7 @@ getManifoldInitialConditionsDr   : returns manifold initial conditions computed 
 
 import numpy as np
 
-from ..general_utils import M_TO_KM
+from ..utils.general import M_TO_KM
 from .stm import computeStableUnstableEigenvectors, computeStmParallel
 
 

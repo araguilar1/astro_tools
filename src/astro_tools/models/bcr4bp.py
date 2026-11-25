@@ -1,5 +1,5 @@
 """
-BCR4BP.py
+bcr4bp.py
 
 Implementation of the Bicircular Restricted Four-Body Problem (BCR4BP) in ASSET Format
 

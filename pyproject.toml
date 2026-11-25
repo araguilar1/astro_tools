@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "astro_tools"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Astrodynamics tools for use in trajectory design."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -9,5 +13,24 @@ authors = [
 ]
 
 dependencies = [
-    "asset_asrl>=0.5.1"
+    "asset_asrl>=0.5.1",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "requests>=2.28",
+    "plotly>=5.0",
 ]
+
+[project.optional-dependencies]
+examples = ["prettytable>=3.0"]
+dev = ["ruff"]
+
+[tool.setuptools.dynamic]
+version = { attr = "astro_tools.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+astro_tools = ["data/*.csv"]
